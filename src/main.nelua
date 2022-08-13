@@ -1,0 +1,6 @@
+require "wasm4"
+
+local function update(): void
+end
+
+setup_wasm4_callbacks!(update)
