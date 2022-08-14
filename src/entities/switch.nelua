@@ -2,6 +2,7 @@
 local Vec2 = require 'math.vec2'
 local Rect = require 'math.rect'
 local units = require 'units'
+local game_functions = require 'game_functions'
 
 local Switch = @record{
   active: boolean,
@@ -21,7 +22,7 @@ end
 
 function Switch:paint()
   if not self.active then return end
-  self:hitbox():paint()
+  self:hitbox():paint(game_functions.get_camera_offset())
 end
 
 return Switch

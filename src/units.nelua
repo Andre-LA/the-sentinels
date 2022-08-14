@@ -1,6 +1,13 @@
+-- core
+local Vec2 = require 'math.vec2'
+
 local units = @record{}
 
 local units.DT <comptime> = 1/60
-local units.UNIT <comptime> = 4
+local units.UNIT <comptime> = 8
+
+function units.coords(x: number, y: number): Vec2
+  return Vec2{ x * units.UNIT, y * units.UNIT }
+end
 
 return units

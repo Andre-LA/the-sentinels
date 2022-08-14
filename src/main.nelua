@@ -16,6 +16,7 @@ local math = require 'math'
 -- core
 local Vec2 = require 'math.vec2'
 local Rect = require 'math.rect'
+local units = require 'units'
 local game_functions = require 'game_functions'
 
 -- entities
@@ -127,6 +128,11 @@ function GameState.is_enemy_seeing_player(enemy_center: Vec2, max_distance_sqr: 
   return true, seg2player:normalized()
 end
 
+function GameState.get_camera_offset(): Vec2
+  local self = &GameState.instance
+  return self.player:hitbox():get_center() - Vec2{80,80}
+end
+
 function GameState:close_level(player_pos: Vec2)
   self.player.position = player_pos
   self.switches = {}
@@ -135,28 +141,33 @@ function GameState:close_level(player_pos: Vec2)
 end
 
 function GameState:open_level(level: integer <comptime>)
+  local function init_obstacle(x: integer, y: integer, w: integer, h: integer): Rect
+    return Rect{ pos  = units.coords(x, y), size = units.coords(w, h) }
+  end
+
   self:close_level()
 
   -- === LEVEL 01 === --
   ## if level.value == 1 then
     -- player pos
-    self.player.position = {16, 48}
+    self.player.position = units.coords(2, 6)
 
     -- obstacles
-    -- self.obstacles[0] = { {4, 4}, {32, 4} }
-    self.obstacles[1] = { {4, 120}, {32, 4} }
-    -- self.obstacles[2] = { {0, 4}, {4, 120} }
+    self.obstacles[0] = init_obstacle(0,0 , 4,1)
+    self.obstacles[1] = init_obstacle(0,8 , 4,1)
+    self.obstacles[2] = init_obstacle(0,0 , 1,8)
 
     -- switches
-    self.switches[0] = { active = true, position = { 16, 16 }, action = function()
+    self.switches[0] = { active = true, position = units.coords(2, 2), action = function()
       GameState.instance.obstacles[2] = {}
     end}
 
     -- enemies
-    self.enemies[0] = { active = true, position = { 25, 130 } }
+    self.enemies[0] = { active = true, position = units.coords(-4, 4) }
   ## end
 end
 
+game_functions.get_camera_offset = GameState.get_camera_offset
 game_functions.is_intersecting_obstacle = GameState.is_intersecting_obstacle
 game_functions.is_intersecting_switch   = GameState.is_intersecting_switch
 game_functions.is_intersecting_player   = GameState.is_intersecting_player
@@ -168,7 +179,7 @@ local function update()
   GameState.instance.player:update()
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
 
-  for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint() end
+  for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(GameState.get_camera_offset()) end
   for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint() end
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:paint() end
 

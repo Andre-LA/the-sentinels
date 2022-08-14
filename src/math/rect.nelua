@@ -101,11 +101,18 @@ function Rect:is_intersected_by_segment(a: Vec2, b: Vec2): (boolean, number)
   return is_intersecting, dist
 end
 
-function Rect:paint()
-  rect(
-    math.iround(self.pos.x), math.iround(self.pos.y),
-    math.iround(self.size.x), math.iround(self.size.y)
-  )
+function Rect:paint(offset: facultative(Vec2))
+  ## if not offset.type.is_niltype then
+    rect(
+      math.iround(self.pos.x - offset.x), math.iround(self.pos.y - offset.y),
+      math.iround(self.size.x), math.iround(self.size.y)
+    )
+  ## else
+    rect(
+      math.iround(self.pos.x), math.iround(self.pos.y),
+      math.iround(self.size.x), math.iround(self.size.y)
+    )
+  ## end
 end
 
 return Rect

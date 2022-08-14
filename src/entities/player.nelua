@@ -53,7 +53,7 @@ function Player:update()
 end
 
 function Player:paint()
-  self:hitbox():paint()
+  self:hitbox():paint(game_functions.get_camera_offset())
 end
 
 return Player
