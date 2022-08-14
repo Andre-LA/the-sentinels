@@ -1,0 +1,111 @@
+-- nelua
+local math = require 'math'
+
+-- core
+local Vec2 = require '.vec2'
+
+local Rect = @record{
+  pos: Vec2,
+  size: Vec2
+}
+
+function Rect:get_center(): Vec2
+  return self.pos + self.size * 0.5
+end
+
+function Rect:get_right_side(): (Vec2, Vec2)
+  local a: Vec2 = { self.pos.x + self.size.x, self.pos.y }
+  local b: Vec2 = { self.pos.x + self.size.x, self.pos.y + self.size.y }
+  return a, b
+end
+
+function Rect:get_left_side(): (Vec2, Vec2)
+  local a: Vec2 = { self.pos.x, self.pos.y }
+  local b: Vec2 = { self.pos.x, self.pos.y + self.size.y }
+  return a, b
+end
+
+function Rect:get_up_side(): (Vec2, Vec2)
+  local a: Vec2 = { self.pos.x, self.pos.y }
+  local b: Vec2 = { self.pos.x + self.size.x, self.pos.y }
+  return a, b
+end
+
+function Rect:get_down_side(): (Vec2, Vec2)
+  local a: Vec2 = { self.pos.x, self.pos.y + self.size.y }
+  local b: Vec2 = { self.pos.x + self.size.x, self.pos.y + self.size.y }
+  return a, b
+end
+
+-- from nene: https://github.com/Andre-LA/nene/blob/89b06f86ab8610222034a3e3a38767c07d98bcf1/nene/math/rectn.nelua#L94
+function Rect:is_intersecting(other: Rect): boolean
+  return not (
+    ( self.pos.x +  self.size.x) < other.pos.x or -- is `self `on left of `other`? if so, is not intersecting
+    (other.pos.x + other.size.x) <  self.pos.x or -- is `other` on left of `self`? if so, is not intersecting
+    ( self.pos.y +  self.size.y) < other.pos.y or -- is `self `on top of `other`? if so, is not intersecting
+    (other.pos.y + other.size.y) <  self.pos.y    -- is `other` on top of `self`? if so, is not intersecting
+  )
+end
+
+-- from nene: https://github.com/Andre-LA/nene/blob/89b06f86ab8610222034a3e3a38767c07d98bcf1/nene/math/rectn.nelua#L116
+function Rect:get_intersection(other: Rect): Rect
+  local max_px = math.max(self.pos.x, other.pos.x)
+  local max_py = math.max(self.pos.y, other.pos.y)
+  local min_xw = math.min(self.pos.x + self.size.x, other.pos.x + other.size.x)
+  local min_yh = math.min(self.pos.y + self.size.y, other.pos.y + other.size.y)
+
+  local pmin: Vec2 = { max_px, max_py }
+  local pmax: Vec2 = { min_xw, min_yh }
+
+  local intersection: Rect = {
+    pos  = { x = pmin.x, y = pmin.y},
+    size = {
+      x = math.abs(pmax.x - pmin.x),
+      y = math.abs(pmax.y - pmin.y)
+    }
+  }
+
+  return intersection
+end
+
+function Rect:is_intersected_by_segment(a: Vec2, b: Vec2): (boolean, number)
+  -- TODO: check lua behavior here later
+  local ra, rb = self:get_right_side()
+  local la, lb = self:get_left_side()
+  local ua, ub = self:get_up_side()
+  local da, db = self:get_down_side()
+
+  local sides: [4]record{a: Vec2, b: Vec2} = {
+    { ra, rb },
+    { la, lb },
+    { ua, ub },
+    { da, db },
+  }
+
+  local is_intersecting, dist = false, math.huge
+
+  for i = 0, < #sides do
+    local _is_intersecting, intersection_p = Vec2.intersecting_segments(a, b, sides[i].a, sides[i].b)
+
+    if _is_intersecting then
+      is_intersecting = _is_intersecting
+
+      local seg_a2i = intersection_p - a
+      local _dist = seg_a2i:len_sqr()
+      if _dist < dist then
+        dist = _dist
+      end
+    end
+  end
+
+  return is_intersecting, dist
+end
+
+function Rect:paint()
+  rect(
+    math.iround(self.pos.x), math.iround(self.pos.y),
+    math.iround(self.size.x), math.iround(self.size.y)
+  )
+end
+
+return Rect

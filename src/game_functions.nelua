@@ -1,0 +1,13 @@
+-- core
+local Vec2 = require 'math.vec2'
+local Rect = require 'math.rect'
+
+local game_functions = @record{}
+local game_functions.is_intersecting_switch: function(hitbox: Rect): (boolean, Vec2, pointer)
+
+local game_functions.is_intersecting_obstacle: function(hitbox: Rect): (boolean, Vec2)
+local game_functions.is_intersecting_player: function(hitbox: Rect): (boolean, Vec2)
+
+local game_functions.is_enemy_seeing_player: function(enemy_center: Vec2, max_distance_sqr: number): (boolean, Vec2)
+
+return game_functions

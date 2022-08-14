@@ -1,0 +1,70 @@
+-- nelua
+local math = require 'math'
+
+-- vec2
+local Vec2 = @record{
+  x: number,
+  y: number,
+}
+
+function Vec2.__add(a: Vec2, b: Vec2): Vec2
+  return Vec2{ a.x + b.x, a.y + b.y }
+end
+
+function Vec2.__sub(a: Vec2, b: Vec2): Vec2
+  return Vec2{ a.x - b.x, a.y - b.y }
+end
+
+function Vec2.__mul(a: Vec2, b: overload(Vec2, number)): Vec2
+  ## if b.type.is_scalar then
+    return Vec2{ a.x * b, a.y * b }
+  ## else
+    return Vec2{ a.x * b.x, a.y * b.y }
+  ## end
+end
+
+function Vec2:len_sqr(): number
+  return self.x * self.x + self.y * self.y
+end
+
+function Vec2:__len(): number
+  return math.sqrt(self:len_sqr())
+end
+
+function Vec2.dot(a: Vec2, b: Vec2): number
+  return a.x * b.x + a.y * b.y
+end
+
+function Vec2.cross(a: Vec2, b: Vec2): number
+  return a.x * b.y - a.y * b.x
+end
+
+function Vec2:normalized(): Vec2
+  local len = #self
+  if len > 0.0 then
+    return Vec2{ x = self.x / len, y = self.y / len }
+  end
+
+  return Vec2{}
+end
+
+-- from nene: https://github.com/Andre-LA/nene/blob/3383a57c9dd59cd663e04cdc141228a3c3f502c2/examples/segments_intersection.nelua#L20
+function Vec2.intersecting_segments(a: Vec2, b: Vec2, c: Vec2, d: Vec2): (boolean, Vec2)
+  local ab = b - a
+  local cd = d - c
+
+  local ab_x_cd = ab:cross(cd)
+
+  if ab_x_cd == 0 then
+    return false
+  else
+    local ac = c - a
+    local t1 = ac:cross(cd) / ab_x_cd
+    local t2 = -ab:cross(ac) / ab_x_cd
+    local is_intersecting = 0.0 <= t1 and t1 <= 1.0 and 0.0 <= t2 and t2 <= 1.0
+    local p = a + ab * t1
+    return is_intersecting, p
+  end
+end
+
+return Vec2

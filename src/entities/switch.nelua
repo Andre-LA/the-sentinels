@@ -1,0 +1,28 @@
+-- core
+local Vec2 = require 'math.vec2'
+local Rect = require 'math.rect'
+local units = require 'units'
+
+local Switch = @record{
+  active: boolean,
+  position: Vec2,
+  action: function()
+}
+
+function Switch:hitbox(): Rect
+  return Rect{ pos = self.position, size = {units.UNIT, units.UNIT} }
+end
+
+function Switch:actionate()
+  if self.action then
+    self.action()
+  end
+end
+
+function Switch:paint()
+  if not self.active then return end
+  self:hitbox():paint()
+end
+
+return Switch
+

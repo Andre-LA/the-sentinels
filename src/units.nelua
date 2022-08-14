@@ -1,0 +1,6 @@
+local units = @record{}
+
+local units.DT <comptime> = 1/60
+local units.UNIT <comptime> = 4
+
+return units

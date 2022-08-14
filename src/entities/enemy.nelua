@@ -1,0 +1,32 @@
+-- core
+local Vec2 = require 'math.vec2'
+local Rect = require 'math.rect'
+local units = require 'units'
+local game_functions = require 'game_functions'
+
+local Enemy = @record{
+  active: boolean,
+  position: Vec2,
+}
+
+function Enemy:hitbox(): Rect
+  return Rect { pos = self.position, size = {units.UNIT * 2, units.UNIT * 2} }
+end
+
+function Enemy:update()
+  if not self.active then
+    return
+  end
+
+  local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self.position, (32^2))
+  if is_enemy_seeing_player then
+    local SPEED <comptime> = 1 * units.UNIT * units.DT
+    self.position = self.position + player_dir * SPEED
+  end
+end
+
+function Enemy:paint()
+  self:hitbox():paint()
+end
+
+return Enemy
