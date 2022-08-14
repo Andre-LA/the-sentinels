@@ -1,6 +1,6 @@
 # unnamed WASM-4 Jam #2 entry game repository
 
-A game written in Nelua for the [WASM-4](https://wasm4.org) fantasy console.
+A game written in [Nelua](https://nelua.io/) for the [WASM-4](https://wasm4.org) fantasy console.
 
 Entry for [WASM-4 Jam #2](https://itch.io/jam/wasm4-v2).
 
