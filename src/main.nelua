@@ -32,10 +32,10 @@ local GameState = @record{
   door: Door,
   switches: [4]Switch,
   enemies: [1]Enemy,
-  obstacles: [16]Rect
+  obstacles: [32]Rect
 }
 local GameState.instance: GameState
-## print('#GameState (%)', GameState.value.size, GameState.value.size / (1024*64))
+## print('#GameState (%)', GameState.value.size, GameState.value.size / (1024*64) * 100)
 
 local function get_intersection_dir(r: Rect, self_center: Vec2): Vec2
   local function get_dir(self_center: number, rc: number): number
@@ -210,6 +210,13 @@ function GameState:open_level(level: integer)
       init_obstacle(20,8 , 9,1),
       init_obstacle(28,0 , 1,8),
 
+      -- enemy room
+      init_obstacle(-7,-2 , 7, 1),
+      init_obstacle(-7,10 , 7, 1),
+      init_obstacle(-7,-1 , 1,11),
+      init_obstacle( 0,-2 , 1, 2),
+      init_obstacle( 0, 9 , 1, 2),
+
       -- init_obstacle(20,1 , 1,7), -- enabled by switch #2
     }
 
@@ -223,8 +230,8 @@ function GameState:open_level(level: integer)
       }, {
         active = true,
         position = units.coords(22, 4),
-        action = function() GameState.instance.obstacles[8] = init_obstacle(20,1 , 1,7) end,
-        undoaction = function() GameState.instance.obstacles[8] = {} end,
+        action = function() GameState.instance.obstacles[13] = init_obstacle(20,1 , 1,7) end,
+        undoaction = function() GameState.instance.obstacles[13] = {} end,
       },
     }
 
