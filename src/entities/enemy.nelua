@@ -4,6 +4,7 @@ local Rect = require 'math.rect'
 local units = require 'units'
 local game_functions = require 'game_functions'
 
+-- enemy
 local Enemy = @record{
   active: boolean,
   position: Vec2,
@@ -18,14 +19,18 @@ function Enemy:update()
     return
   end
 
-  local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self.position, ((units.UNIT*8) ^ 2))
+  local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self.position, ((units.UNIT*12) ^ 2))
   if is_enemy_seeing_player then
-    local SPEED <comptime> = 4 * units.UNIT * units.DT
+    local SPEED <comptime> = 8 * units.UNIT * units.DT
     self.position = self.position + player_dir * SPEED
   end
 end
 
 function Enemy:paint()
+  if not self.active then
+    return
+  end
+
   self:hitbox():paint(game_functions.get_camera_offset())
 end
 
