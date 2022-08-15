@@ -1,6 +1,7 @@
 -- core
 local Vec2 = require 'math.vec2'
 
+-- units
 local units = @record{}
 
 local units.DT <comptime> = 1/60

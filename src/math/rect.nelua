@@ -4,6 +4,7 @@ local math = require 'math'
 -- core
 local Vec2 = require '.vec2'
 
+-- rect
 local Rect = @record{
   pos: Vec2,
   size: Vec2
