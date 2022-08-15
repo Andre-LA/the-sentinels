@@ -156,24 +156,82 @@ function GameState:open_level(level: integer)
 
   self:close_level()
 
+  switch level do
   -- === LEVEL 01 === --
-  ## if level.value == 1 then
+  case 1 then
+    -- player pos
+    self.player.position = units.coords(2, 3)
+
+    -- door pos
+    self.door.position = units.coords(12, 3)
+
+    -- obstacles
+    self.obstacles = {
+      -- left room
+      init_obstacle( 0,0 , 15,1),
+      init_obstacle( 0,6 , 15,1),
+      init_obstacle( 0,1 ,  1,5),
+      init_obstacle(14,1 ,  1,5),
+
+      init_obstacle( 7,1 ,  1,5), -- disabled by switch #0
+    }
+
+    -- switches
+    self.switches = {
+      {
+        active = true,
+        position = units.coords(5, 3),
+        action = function() GameState.instance.obstacles[4] = {} end,
+        undoaction = function() GameState.instance.obstacles[4] = init_obstacle( 7,1 ,  1,5) end,
+      }
+    }
+
+  -- === LEVEL 02 === --
+  case 2 then
     -- player pos
     self.player.position = units.coords(2, 6)
 
+    -- door pos
+    self.door.position = units.coords(26, 4)
+
     -- obstacles
-    self.obstacles[0] = init_obstacle(0,0 , 4,1)
-    self.obstacles[1] = init_obstacle(0,8 , 4,1)
-    self.obstacles[2] = init_obstacle(0,0 , 1,8)
+    self.obstacles = {
+      -- left room
+      init_obstacle(0,0 , 9,1),
+      init_obstacle(0,8 , 9,1),
+      init_obstacle(0,0 , 1,8), -- disabled by switch #1
+
+      -- corridor
+      init_obstacle(8,1 , 12.75,1),
+      init_obstacle(8,7 , 12.75,1),
+
+      -- right room
+      init_obstacle(20,0 , 9,1),
+      init_obstacle(20,8 , 9,1),
+      init_obstacle(28,0 , 1,8),
+
+      -- init_obstacle(20,1 , 1,7), -- enabled by switch #2
+    }
 
     -- switches
-    self.switches[0] = { active = true, position = units.coords(2, 2), action = function()
-      GameState.instance.obstacles[2] = {}
-    end}
+    self.switches = {
+      {
+        active = true,
+        position = units.coords(4, 2),
+        action = function() GameState.instance.obstacles[2] = {} end,
+        undoaction = function() GameState.instance.obstacles[2] = init_obstacle(0,0 , 1,8) end,
+      }, {
+        active = true,
+        position = units.coords(22, 4),
+        action = function() GameState.instance.obstacles[8] = init_obstacle(20,1 , 1,7) end,
+        undoaction = function() GameState.instance.obstacles[8] = {} end,
+      },
+    }
 
     -- enemies
     self.enemies[0] = { active = true, position = units.coords(-4, 4) }
-  ## end
+
+  end
 
   self.current_level = level
 end
