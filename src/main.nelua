@@ -14,18 +14,22 @@ require "wasm4"
 local math = require 'math'
 
 -- core
-local Vec2 = require 'math.vec2'
-local Rect = require 'math.rect'
+local Vec2  = require 'math.vec2'
+local Rect  = require 'math.rect'
 local units = require 'units'
 local game_functions = require 'game_functions'
 
 -- entities
 local Player = require 'entities.player'
+local Door   = require 'entities.door'
 local Switch = require 'entities.switch'
-local Enemy = require 'entities.enemy'
+local Enemy  = require 'entities.enemy'
 
+-- game
 local GameState = @record{
+  current_level: integer,
   player: Player,
+  door: Door,
   switches: [4]Switch,
   enemies: [1]Enemy,
   obstacles: [16]Rect
@@ -105,6 +109,11 @@ function GameState.is_intersecting_switch(hitbox: Rect): (boolean, Vec2, pointer
   return false
 end
 
+function GameState.is_intersecting_door(hitbox: Rect): boolean
+  local self = &GameState.instance
+  return hitbox:is_intersecting(self.door:hitbox())
+end
+
 function GameState.is_enemy_seeing_player(enemy_center: Vec2, max_distance_sqr: number): (boolean, Vec2)
   local self = &GameState.instance
 
@@ -140,8 +149,8 @@ function GameState:close_level(player_pos: Vec2)
   self.enemies = {}
 end
 
-function GameState:open_level(level: integer <comptime>)
-  local function init_obstacle(x: integer, y: integer, w: integer, h: integer): Rect
+function GameState:open_level(level: integer)
+  local function init_obstacle(x: number, y: number, w: number, h: number): Rect
     return Rect{ pos  = units.coords(x, y), size = units.coords(w, h) }
   end
 
@@ -165,10 +174,19 @@ function GameState:open_level(level: integer <comptime>)
     -- enemies
     self.enemies[0] = { active = true, position = units.coords(-4, 4) }
   ## end
+
+  self.current_level = level
 end
 
+function GameState.open_next_level()
+  local self = &GameState.instance
+  self:open_level(self.current_level + 1)
+end
+
+game_functions.open_next_level   = GameState.open_next_level
 game_functions.get_camera_offset = GameState.get_camera_offset
 game_functions.is_intersecting_obstacle = GameState.is_intersecting_obstacle
+game_functions.is_intersecting_door     = GameState.is_intersecting_door
 game_functions.is_intersecting_switch   = GameState.is_intersecting_switch
 game_functions.is_intersecting_player   = GameState.is_intersecting_player
 game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
@@ -179,6 +197,7 @@ local function update()
   GameState.instance.player:update()
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
 
+  GameState.instance.door:paint()
   for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(GameState.get_camera_offset()) end
   for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint() end
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:paint() end

@@ -7,6 +7,7 @@ local game_functions = require 'game_functions'
 -- entities
 local Switch = require 'entities.switch'
 
+-- player
 local Player = @record{
   position: Vec2,
   _prevframe_b1_pressed: boolean
@@ -24,6 +25,7 @@ function Player:update()
 
   local is_b1_pressed = $GAMEPAD1 & BUTTON_1 ~= 0
   local is_b1_just_pressed = is_b1_pressed and not self._prevframe_b1_pressed
+  self._prevframe_b1_pressed = is_b1_pressed
 
   local SPEED <comptime> = 8 * units.UNIT * units.DT
 
@@ -47,9 +49,12 @@ function Player:update()
       local sw_ptr: *Switch = (@pointer(Switch))(sw_ptr)
       sw_ptr:actionate()
     end
-  end
 
-  self._prevframe_b1_pressed = is_b1_pressed
+    local is_nearto_door, _, sw_ptr = game_functions.is_intersecting_door(self:hitbox())
+    if is_nearto_door then
+      game_functions.open_next_level()
+    end
+  end
 end
 
 function Player:paint()
