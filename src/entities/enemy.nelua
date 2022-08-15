@@ -24,6 +24,11 @@ function Enemy:update()
     local SPEED <comptime> = 8 * units.UNIT * units.DT
     self.position = self.position + player_dir * SPEED
   end
+
+  local did_enemy_reach_player, _ = game_functions.is_intersecting_player(self:hitbox())
+  if did_enemy_reach_player then
+    game_functions.lost_level()
+  end
 end
 
 function Enemy:paint()

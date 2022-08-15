@@ -241,6 +241,12 @@ function GameState.open_next_level()
   self:open_level(self.current_level + 1)
 end
 
+function GameState.lost_level()
+  local self = &GameState.instance
+  self:open_level(self.current_level)
+end
+
+game_functions.lost_level        = GameState.lost_level
 game_functions.open_next_level   = GameState.open_next_level
 game_functions.get_camera_offset = GameState.get_camera_offset
 game_functions.is_intersecting_obstacle = GameState.is_intersecting_obstacle

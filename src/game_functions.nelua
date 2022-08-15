@@ -15,5 +15,6 @@ local game_functions.is_intersecting_player: function(hitbox: Rect): (boolean, V
 local game_functions.is_enemy_seeing_player: function(enemy_center: Vec2, max_distance_sqr: number): (boolean, Vec2)
 
 local game_functions.open_next_level: function()
+local game_functions.lost_level: function()
 
 return game_functions
