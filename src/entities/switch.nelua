@@ -4,10 +4,13 @@ local Rect = require 'math.rect'
 local units = require 'units'
 local game_functions = require 'game_functions'
 
+-- switch
 local Switch = @record{
   active: boolean,
   position: Vec2,
-  action: function()
+  activated: boolean,
+  action: function(),
+  undoaction: function(),
 }
 
 function Switch:hitbox(): Rect
@@ -15,8 +18,15 @@ function Switch:hitbox(): Rect
 end
 
 function Switch:actionate()
-  if self.action then
+  assert(self.action, 'action not set')
+  assert(self.undoaction, 'undoaction not set')
+
+  if self.activated then
+    self.undoaction()
+    self.activated = false
+  else
     self.action()
+    self.activated = true
   end
 end
 
