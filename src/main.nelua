@@ -24,15 +24,16 @@ local Player = require 'entities.player'
 local Door   = require 'entities.door'
 local Switch = require 'entities.switch'
 local Enemy  = require 'entities.enemy'
+local Obstacle  = require 'entities.obstacle'
 
 -- game
 local GameState = @record{
   current_level: integer,
   player: Player,
   door: Door,
-  switches: [4]Switch,
-  enemies: [1]Enemy,
-  obstacles: [32]Rect
+  switches: [16]Switch, -- TODO: use the least necessary entities possible
+  enemies: [16]Enemy,
+  obstacles: [64]Obstacle,
 }
 local GameState.instance: GameState
 ## print('#GameState (%)', GameState.value.size, GameState.value.size / (1024*64) * 100)
@@ -73,9 +74,9 @@ function GameState.is_intersecting_obstacle(hitbox: Rect): (boolean, Vec2)
   local dir: Vec2, is_intersecting: boolean
 
   for i = 0, < #self.obstacles do
-    if hitbox:is_intersecting(self.obstacles[i]) then
+    if hitbox:is_intersecting(self.obstacles[i]:hitbox()) then
       is_intersecting = true
-      local intersection = hitbox:get_intersection(self.obstacles[i])
+      local intersection = hitbox:get_intersection(self.obstacles[i]:hitbox())
       local i_dir = get_intersection_dir(intersection, hitbox:get_center())
 
       if i_dir.x ~= 0.0 then
@@ -124,7 +125,7 @@ function GameState.is_enemy_seeing_player(enemy_center: Vec2, max_distance_sqr: 
     return false
   else
     for i = 0, < #self.obstacles do
-      local o_intersection, o_intersection_dist = self.obstacles[i]:is_intersected_by_segment(
+      local o_intersection, o_intersection_dist = self.obstacles[i]:hitbox():is_intersected_by_segment(
         self.player.position, enemy_center
       )
 
@@ -150,8 +151,8 @@ function GameState:close_level(player_pos: Vec2)
 end
 
 function GameState:open_level(level: integer)
-  local function init_obstacle(x: number, y: number, w: number, h: number): Rect
-    return Rect{ pos  = units.coords(x, y), size = units.coords(w, h) }
+  local function init_obstacle(x: number, y: number, w: number, h: number): Obstacle
+    return Obstacle{ rect = { pos = units.coords(x, y), size = units.coords(w, h) } }
   end
 
   self:close_level()
@@ -269,7 +270,7 @@ local function update()
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
 
   GameState.instance.door:paint()
-  for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(GameState.get_camera_offset()) end
+  for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint() end
   for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint() end
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:paint() end
 

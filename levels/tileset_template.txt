@@ -1,0 +1,30 @@
+require 'wasm4'
+local units = require 'units'
+
+{{#sprites}}
+-- {{name}}
+
+local {{name}} = @record{}
+
+local {{name}}.width <comptime> = {{width}}
+local {{name}}.height <comptime> = {{height}}
+local {{name}}.flags <comptime> = {{flags}} -- {{flagsHumanReadable}}
+local {{name}}.data: [{{length}}]uint8 <comptime> = { {{bytes}} }
+
+function {{name}}.draw_tile(src_x: integer, src_y: integer, dest_x: integer, dest_y: integer)
+  blitSub(
+    {{name}}.data,
+    dest_x,
+    dest_y,
+    units.UNIT,
+    units.UNIT,
+    src_x * units.UNIT,
+    src_y * units.UNIT,
+    {{name}}.width,
+    {{name}}.flags
+  )
+end
+
+return {{name}}
+
+{{/sprites}}
