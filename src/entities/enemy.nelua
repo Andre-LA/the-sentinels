@@ -21,7 +21,17 @@ function Enemy:update()
 
   local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self.position, ((units.UNIT*12) ^ 2))
   if is_enemy_seeing_player then
-    local SPEED <comptime> = 8 * units.UNIT * units.DT
+    local SPEED <comptime> = 6 * units.UNIT * units.DT
+
+    local is_colliding, collision_dir = game_functions.is_intersecting_obstacle(self:hitbox())
+    if is_colliding then
+      if player_dir.x < 0.0 and collision_dir.x > 0.0 then player_dir.x = 0.0 end
+      if player_dir.x > 0.0 and collision_dir.x < 0.0 then player_dir.x = 0.0 end
+      if player_dir.y > 0.0 and collision_dir.y < 0.0 then player_dir.y = 0.0 end
+      if player_dir.y < 0.0 and collision_dir.y > 0.0 then player_dir.y = 0.0 end
+    end
+    player_dir = player_dir:normalized()
+
     self.position = self.position + player_dir * SPEED
   end
 

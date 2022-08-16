@@ -38,10 +38,17 @@ function Player:update()
     if is_down_pressed  and collision_dir.y < 0.0 then is_down_pressed  = false end
   end
 
-  if is_right_pressed then self.position.x = self.position.x + SPEED end
-  if is_left_pressed  then self.position.x = self.position.x - SPEED end
-  if is_down_pressed  then self.position.y = self.position.y + SPEED end
-  if is_up_pressed    then self.position.y = self.position.y - SPEED end
+  local dir: Vec2;
+
+  if is_right_pressed then dir.x =  1 end
+  if is_left_pressed  then dir.x = -1 end
+  if is_down_pressed  then dir.y =  1 end
+  if is_up_pressed    then dir.y = -1 end
+
+  if dir:len_sqr() > 0 then
+    dir = dir:normalized()
+    self.position = self.position + dir * SPEED
+  end
 
   if is_b1_just_pressed then
     local is_nearto_switch, _, sw_ptr = game_functions.is_intersecting_switch(self:hitbox())
