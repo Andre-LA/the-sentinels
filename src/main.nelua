@@ -157,6 +157,56 @@ function GameState:open_level(level: integer)
 
   self:close_level()
 
+  ## local function clear_obstacles(...)
+    ## for i = 1, select('#', ...) do
+      GameState.instance.obstacles[#[select(i, ...)]#] = {}
+    ## end
+  ## end
+
+  ## local function init_obstacles(obstacles)
+    ## for i, v in pairs(obstacles) do
+      GameState.instance.obstacles[#[i]#] = init_obstacle(#[ v[1] ]#, #[ v[2] ]#, #[ v[3] ]#, #[ v[4] ]#)
+    ## end
+  ## end
+
+  ## local switch_templates = {}
+  ##[[
+  function switch_templates._get_indexes(tbl)
+    local indexes = {}
+    for i, _ in pairs(tbl) do
+      table.insert(indexes, i)
+    end
+    return indexes
+  end
+  ]]
+
+  ## function switch_templates.basic_macro(idx, data)
+    GameState.instance.switches[ #[idx]# ] = {
+      active = true,
+      position = units.coords( #[ data.pos[1] ]#, #[ data.pos[2] ]# ),
+      action     = function() ##[[ data.action() ]] end,
+      undoaction = function() ##[[ data.undoaction() ]] end,
+    }
+  ## end
+
+  ##[[
+  function switch_templates.openclose_obstacle(idx, data)
+    local obstacles_to_clear = switch_templates._get_indexes(data.obstacles)
+    data.action     = function() clear_obstacles(table.unpack(obstacles_to_clear)) end
+    data.undoaction = function() init_obstacles(data.obstacles) end
+
+    switch_templates.basic_macro(idx, data)
+  end
+
+  function switch_templates.closeopen_obstacle(idx, data)
+    local obstacles_to_clear = switch_templates._get_indexes(data.obstacles)
+    data.action     = function() init_obstacles(data.obstacles) end
+    data.undoaction = function() clear_obstacles(table.unpack(obstacles_to_clear)) end
+
+    switch_templates.basic_macro(idx, data)
+  end
+  ]]
+
   switch level do
   -- === LEVEL 01 === --
   case 1 then
@@ -178,14 +228,11 @@ function GameState:open_level(level: integer)
     }
 
     -- switches
-    self.switches = {
-      {
-        active = true,
-        position = units.coords(5, 3),
-        action = function() GameState.instance.obstacles[4] = {} end,
-        undoaction = function() GameState.instance.obstacles[4] = init_obstacle( 7,1 ,  1,5) end,
-      }
-    }
+    ##[[
+    switch_templates.openclose_obstacle(0, { pos = {5, 3}, obstacles = {
+      [4] = {7,1 , 1,5},
+    }})
+    ]]
 
   -- === LEVEL 02 === --
   case 2 then
@@ -200,16 +247,16 @@ function GameState:open_level(level: integer)
       -- left room
       init_obstacle(0,0 , 9,1),
       init_obstacle(0,8 , 9,1),
-      init_obstacle(0,0 , 1,8), -- disabled by switch #1
+      init_obstacle(0,0 , 1,8), -- [02]: switch #1
 
       -- corridor
-      init_obstacle(8,1 , 12.75,1),
-      init_obstacle(8,7 , 12.75,1),
+      init_obstacle(8,1 , 12,1),
+      init_obstacle(8,7 , 12,1),
 
       -- right room
-      init_obstacle(20,0 , 9,1),
-      init_obstacle(20,8 , 9,1),
-      init_obstacle(28,0 , 1,8),
+      init_obstacle(19,0 , 10,1),
+      init_obstacle(19,8 , 10,1),
+      init_obstacle(28,1 ,  1,7),
 
       -- enemy room
       init_obstacle(-7,-2 , 7, 1),
@@ -218,27 +265,104 @@ function GameState:open_level(level: integer)
       init_obstacle( 0,-2 , 1, 2),
       init_obstacle( 0, 9 , 1, 2),
 
-      -- init_obstacle(20,1 , 1,7), -- enabled by switch #2
+      -- init_obstacle(20,1 , 1,7), -- [13]: switch #2
     }
 
     -- switches
-    self.switches = {
-      {
-        active = true,
-        position = units.coords(4, 2),
-        action = function() GameState.instance.obstacles[2] = {} end,
-        undoaction = function() GameState.instance.obstacles[2] = init_obstacle(0,0 , 1,8) end,
-      }, {
-        active = true,
-        position = units.coords(22, 4),
-        action = function() GameState.instance.obstacles[13] = init_obstacle(20,1 , 1,7) end,
-        undoaction = function() GameState.instance.obstacles[13] = {} end,
-      },
-    }
+    ##[[
+    switch_templates.openclose_obstacle(0, { pos = {4, 2}, obstacles = {
+      [2] = {0,0 , 1,8},
+    }})
+    switch_templates.closeopen_obstacle(1, { pos = {22, 4}, obstacles = {
+      [13] = {20,1 , 1,7},
+    }})
+    ]]
 
     -- enemies
     self.enemies[0] = { active = true, position = units.coords(-4, 4) }
 
+  -- === LEVEL 03 === --
+  case 3 then
+    -- player pos
+    self.player.position = units.coords(3, 2)
+
+    -- door pos
+    self.door.position = units.coords(23, 10)
+
+    -- obstacles
+    self.obstacles = {
+      init_obstacle( 0, 1 ,  1, 12), -- left wall
+      init_obstacle( 0, 0 , 26,  1), -- up wall
+      init_obstacle( 0,13 , 26,  1), -- down wall
+      init_obstacle(25, 1 ,  1, 12), -- right wall room
+      init_obstacle( 6, 1 ,  1, 10), -- 1st v(ertical) wall
+
+      -- 2nd v wall
+      init_obstacle(11, 3 ,  1, 5), -- [05]: switch #1
+      init_obstacle( 7, 7 ,  4, 1), -- [06]: switch #0
+      init_obstacle(11, 8 ,  1, 5), -- [07]: switch #0
+      -- 3rd v wall
+      init_obstacle(16, 6 ,  1, 5), -- [08]: switch #2
+      init_obstacle(12, 7 ,  4, 1), -- [09]: switch #1
+      init_obstacle(16, 1 ,  1, 5), -- [10]: switch #1
+      -- 4th v wall
+      init_obstacle(21, 3 ,  1, 5), -- [11]: switch #3
+      init_obstacle(17, 7 ,  4, 1), -- [12]: switch #2
+      init_obstacle(21, 8 ,  1, 5), -- [13]: switch #2
+      -- last h wall
+      init_obstacle(22, 7 ,  4, 1), -- [14]: switch #3
+    }
+
+    -- switches
+    ##[[
+    switch_templates.openclose_obstacle(0, { pos = {8.5, 10}, obstacles = {
+      [6] = { 7,7 , 4,1},
+      [7] = {11,8 , 1,5},
+    }})
+    switch_templates.basic_macro(1, { pos = { 13.5, 3},
+      action = function()
+        clear_obstacles(9, 10);
+        init_obstacles({ [5] = {11,1 , 1,12} })
+      end,
+      undoaction = function()
+        init_obstacles({
+          [9] = {12,7 , 4,1},
+          [10] = {16,1 , 1,5},
+          [5] = {11,3 , 1,5}
+        })
+      end,
+    })
+    switch_templates.basic_macro(2, { pos = { 18.5, 10},
+      action = function()
+        clear_obstacles(12, 13);
+        init_obstacles({ [8] = {16,1 , 1,12} })
+      end,
+      undoaction = function()
+        init_obstacles({
+          [6] = {17,7 , 4,1},
+          [7] = {21,8 , 1,5},
+          [8] = {16,6 , 1,5}
+         })
+      end,
+    })
+    switch_templates.basic_macro(3, { pos = { 23.5, 3},
+      action = function()
+        clear_obstacles(14);
+        init_obstacles({ [11] = {21,1 , 1,12} })
+      end,
+      undoaction = function()
+        init_obstacles({
+          [14] = {22,7 , 4,1},
+          [11] = {21,3 , 1,5}
+         })
+      end,
+    })
+    ]]
+
+    -- enemies
+    self.enemies[0] = { active = true, position = units.coords(  13, 10) }
+    self.enemies[1] = { active = true, position = units.coords(  18,  3) }
+    self.enemies[2] = { active = true, position = units.coords(22.5, 10) }
   end
 
   self.current_level = level
