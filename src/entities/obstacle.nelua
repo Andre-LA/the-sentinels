@@ -27,22 +27,22 @@ function Obstacle:paint()
   if self.rect.size.x == _1UNIT or self.rect.size.y == _1UNIT then
     if self.rect.size.x > self.rect.size.y then
       local sx = math.ifloor(self.rect.size.x / units.UNIT)
-      tileset.draw_tile(0, 3, px, py)
+      tileset.paint_tile(0, 3, px, py)
       for i = 0, < sx do
-        tileset.draw_tile(1, 3, px + i*units.UNIT, py)
+        tileset.paint_tile(1, 3, px + i*units.UNIT, py)
       end
-      tileset.draw_tile(2, 3, px + (sx-1)*units.UNIT, py)
+      tileset.paint_tile(2, 3, px + (sx-1)*units.UNIT, py)
 
     elseif self.rect.size.x < self.rect.size.y then
       local sy = math.ifloor(self.rect.size.y / units.UNIT)
-      tileset.draw_tile(3, 0, px, py)
+      tileset.paint_tile(3, 0, px, py)
       for i = 0, < sy do
-        tileset.draw_tile(3, 1, px, py + i*units.UNIT)
+        tileset.paint_tile(3, 1, px, py + i*units.UNIT)
       end
-      tileset.draw_tile(3, 2, px, py + (sy-1)*units.UNIT)
+      tileset.paint_tile(3, 2, px, py + (sy-1)*units.UNIT)
 
     else
-      tileset.draw_tile(3, 3, px, py)
+      tileset.paint_tile(3, 3, px, py)
     end
   else
     self:hitbox():paint(offset)
