@@ -1,0 +1,86 @@
+-- core
+local units = require 'units'
+
+-- tileset
+local tileset = require 'levels.tileset'
+
+-- dialogue
+-- TODO: improve gamepad handling
+local prevframe_b1_pressed: boolean
+
+local Character = @enum{
+  Main = 0,
+}
+
+local Line = @record{
+  character: Character,
+  text: string,
+  closing: boolean
+}
+
+local dialogue = @record{}
+
+local dialogue.active = false
+local dialogue.current = 0
+
+local dialogue.pt_texts: [32]Line = {
+  -- level 1
+  { Character.Main,
+[[Aghhh....]]
+  },
+  { Character.Main,
+[[Heh!?]]
+  },
+  { Character.Main,
+[[Que lugar e' este?]],
+    closing = true,
+  },
+  -- level 3
+  { Character.Main,
+[[Ufa, mas o que foi isso?!]],
+  closing = true
+  }
+}
+
+local dialogue.texts = &dialogue.pt_texts
+
+local function paint_character()
+  local px, py = 10, 64
+  switch dialogue.texts[dialogue.current].character do
+  case Character.Main then
+    tileset.paint_sub(0,0 , 4,4 , px,py)
+  end
+end
+
+local function paint_text()
+  -- rect(2,108, 156, 50)
+  text(dialogue.texts[dialogue.current].text, 4, 110)
+end
+
+function dialogue.paint()
+  paint_character()
+  paint_text()
+end
+
+function dialogue.next()
+  if dialogue.texts[dialogue.current].closing then
+    dialogue.active = false
+  end
+  dialogue.current = dialogue.current + 1
+end
+
+function dialogue.show()
+  dialogue.active = true
+end
+
+function dialogue.update()
+  local is_b1_pressed = $GAMEPAD1 & BUTTON_1 ~= 0
+  local is_b1_just_pressed = is_b1_pressed and not prevframe_b1_pressed
+  prevframe_b1_pressed = is_b1_pressed
+
+  if is_b1_just_pressed and dialogue.active then
+    dialogue.next()
+  end
+end
+
+return dialogue

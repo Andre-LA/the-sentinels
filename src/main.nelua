@@ -26,6 +26,9 @@ local Switch = require 'entities.switch'
 local Enemy  = require 'entities.enemy'
 local Obstacle  = require 'entities.obstacle'
 
+-- gui
+local dialogue = require 'gui.dialogue'
+
 -- game
 local GameState = @record{
   current_level: integer,
@@ -36,7 +39,6 @@ local GameState = @record{
   obstacles: [64]Obstacle,
 }
 local GameState.instance: GameState
-## print('#GameState (%)', GameState.value.size, GameState.value.size / (1024*64) * 100)
 
 local function get_intersection_dir(r: Rect, self_center: Vec2): Vec2
   local function get_dir(self_center: number, rc: number): number
@@ -234,6 +236,8 @@ function GameState:open_level(level: integer)
     }})
     ]]
 
+    dialogue.show()
+
   -- === LEVEL 02 === --
   case 2 then
     -- player pos
@@ -363,6 +367,8 @@ function GameState:open_level(level: integer)
     self.enemies[0] = { active = true, position = units.coords(  13, 10) }
     self.enemies[1] = { active = true, position = units.coords(  18,  3) }
     self.enemies[2] = { active = true, position = units.coords(22.5, 10) }
+
+    dialogue.show()
   end
 
   self.current_level = level
@@ -378,6 +384,7 @@ function GameState.lost_level()
   self:open_level(self.current_level)
 end
 
+-- main
 game_functions.lost_level        = GameState.lost_level
 game_functions.open_next_level   = GameState.open_next_level
 game_functions.get_camera_offset = GameState.get_camera_offset
@@ -390,8 +397,12 @@ game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
 GameState.instance:open_level(1)
 
 local function update()
-  GameState.instance.player:update()
-  for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
+  if not dialogue.active then
+    GameState.instance.player:update()
+    for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
+  else
+    dialogue.update()
+  end
 
   GameState.instance.door:paint()
   for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint() end
@@ -399,6 +410,10 @@ local function update()
   for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:paint() end
 
   GameState.instance.player:paint()
+
+  if dialogue.active then
+    dialogue.paint()
+  end
 end
 
 setup_wasm4_callbacks!(update)
