@@ -29,12 +29,69 @@ local Obstacle  = require 'entities.obstacle'
 -- gui
 local dialogue = require 'gui.dialogue'
 
+-- level
+local Level = require 'level'
+
+local Level_01: Level('level_01',  0, -2) Level_01:init()
+local Level_02: Level('level_02',  0, -2) Level_02:init()
+local Level_03: Level('level_03', -7, -4) Level_03:init()
+local Level_04: Level('level_04', 0, -2) Level_04:init()
+local Level_05: Level('level_05', 0, -2) Level_05:init()
+local Level_06: Level('level_06', 0, -2) Level_06:init()
+local Level_07: Level('level_07',-6, -2) Level_07:init()
+local Level_08: Level('level_08', 0, -2) Level_08:init()
+local Level_09: Level('level_09',-5, -8) Level_09:init()
+local Level_10: Level('level_10', 0, -2) Level_10:init()
+
+## local function paint_bg(level)
+  if     #[level]# ==  1 then Level_01:bg_paint()
+  elseif #[level]# ==  2 then Level_02:bg_paint()
+  elseif #[level]# ==  3 then Level_03:bg_paint()
+  elseif #[level]# ==  4 then Level_04:bg_paint()
+  elseif #[level]# ==  5 then Level_05:bg_paint()
+  elseif #[level]# ==  6 then Level_06:bg_paint()
+  elseif #[level]# ==  7 then Level_07:bg_paint()
+  elseif #[level]# ==  8 then Level_08:bg_paint()
+  elseif #[level]# ==  9 then Level_09:bg_paint()
+  elseif #[level]# == 10 then Level_10:bg_paint()
+  end
+## end
+
+## local function paint_mid(level, on_top)
+  if     #[level]# ==  1 then Level_01:mid_paint(#[on_top]#)
+  elseif #[level]# ==  2 then Level_02:mid_paint(#[on_top]#)
+  elseif #[level]# ==  3 then Level_03:mid_paint(#[on_top]#)
+  elseif #[level]# ==  4 then Level_04:mid_paint(#[on_top]#)
+  elseif #[level]# ==  5 then Level_05:mid_paint(#[on_top]#)
+  elseif #[level]# ==  6 then Level_06:mid_paint(#[on_top]#)
+  elseif #[level]# ==  7 then Level_07:mid_paint(#[on_top]#)
+  elseif #[level]# ==  8 then Level_08:mid_paint(#[on_top]#)
+  elseif #[level]# ==  9 then Level_09:mid_paint(#[on_top]#)
+  elseif #[level]# == 10 then Level_10:mid_paint(#[on_top]#)
+  end
+## end
+
+## local function paint_fg(level)
+  if     #[level]# ==  1 then Level_01:fg_paint()
+  elseif #[level]# ==  2 then Level_02:fg_paint()
+  elseif #[level]# ==  3 then Level_03:fg_paint()
+  elseif #[level]# ==  4 then Level_04:fg_paint()
+  elseif #[level]# ==  5 then Level_05:fg_paint()
+  elseif #[level]# ==  6 then Level_06:fg_paint()
+  elseif #[level]# ==  7 then Level_07:fg_paint()
+  elseif #[level]# ==  8 then Level_08:fg_paint()
+  elseif #[level]# ==  9 then Level_09:fg_paint()
+  elseif #[level]# == 10 then Level_10:fg_paint()
+  end
+## end
+
 -- game
 local GameState = @record{
+  game_end: boolean,
   current_level: integer,
   player: Player,
   door: Door,
-  switches: [16]Switch, -- TODO: use the least necessary entities possible
+  switches: [24]Switch, -- TODO: use the least necessary entities possible
   enemies: [16]Enemy,
   obstacles: [64]Obstacle,
 }
@@ -120,29 +177,37 @@ end
 function GameState.is_enemy_seeing_player(enemy_center: Vec2, max_distance_sqr: number): (boolean, Vec2)
   local self = &GameState.instance
 
-  local seg2player = self.player.position - enemy_center
+  local player_center = self.player:get_center()
+
+  local seg2player = player_center - enemy_center
+  local pl_dir = seg2player:normalized()
   local pl_dist_sqr = seg2player:len_sqr()
 
   if pl_dist_sqr > max_distance_sqr then
-    return false
+    return false, pl_dir
   else
     for i = 0, < #self.obstacles do
       local o_intersection, o_intersection_dist = self.obstacles[i]:hitbox():is_intersected_by_segment(
-        self.player.position, enemy_center
+        player_center, enemy_center
       )
 
       if o_intersection and o_intersection_dist < pl_dist_sqr then
-        return false
+        return false, pl_dir
       end
     end
   end
 
-  return true, seg2player:normalized()
+  return true, pl_dir
 end
 
 function GameState.get_camera_offset(): Vec2
   local self = &GameState.instance
   return self.player:hitbox():get_center() - Vec2{80,80}
+end
+
+function GameState.get_player_pos(): Vec2
+  local self = &GameState.instance
+  return self.player:get_paint_bottom()
 end
 
 function GameState:close_level(player_pos: Vec2)
@@ -153,17 +218,23 @@ function GameState:close_level(player_pos: Vec2)
 end
 
 function GameState:open_level(level: integer)
-  local function init_obstacle(x: number, y: number, w: number, h: number): Obstacle
-    return Obstacle{ rect = { pos = units.coords(x, y), size = units.coords(w, h) } }
-  end
-
   self:close_level()
 
-  ## local function clear_obstacles(...)
-    ## for i = 1, select('#', ...) do
-      GameState.instance.obstacles[#[select(i, ...)]#] = {}
+  local function init_obstacle(x: number, y: number, w: number, h: number, active: facultative(boolean), is_security_wall: facultative(boolean)): Obstacle
+    local o = Obstacle{ rect = { pos = units.coords(x, y), size = units.coords(w, h) } }
+
+    ## if active.type.is_niltype then
+      o:set_active(true)
+    ## else
+      o:set_active(active)
     ## end
-  ## end
+
+    ## if not is_security_wall.type.is_niltype then
+      o.is_security_wall = is_security_wall
+    ## end
+
+    return o
+  end
 
   ## local function init_obstacles(obstacles)
     ## for i, v in pairs(obstacles) do
@@ -171,16 +242,27 @@ function GameState:open_level(level: integer)
     ## end
   ## end
 
-  ## local switch_templates = {}
+  ## local function extend_obstacle(idx, extend_x, extend_y)
+    GameState.instance.obstacles[#[idx]#]:extend({ (#[extend_x]# * units.UNIT), (#[extend_y]# * units.UNIT) })
+  ## end
+
+  ## local function move_obstacle(idx, move_x, move_y)
+    GameState.instance.obstacles[#[idx]#]:move({ (#[move_x]# * units.UNIT), (#[move_y]# * units.UNIT) })
+  ## end
+
+  ## local function switch_obstacle(idx)
+    GameState.instance.obstacles[#[idx]#]:toggle(true)
+  ## end
+
   ##[[
-  function switch_templates._get_indexes(tbl)
-    local indexes = {}
-    for i, _ in pairs(tbl) do
-      table.insert(indexes, i)
+  local function switch_obstacles(...)
+    for i = 1, select('#', ...) do
+      switch_obstacle(select(i, ...))
     end
-    return indexes
   end
   ]]
+
+  ## local switch_templates = {}
 
   ## function switch_templates.basic_macro(idx, data)
     GameState.instance.switches[ #[idx]# ] = {
@@ -191,32 +273,57 @@ function GameState:open_level(level: integer)
     }
   ## end
 
-  ##[[
-  function switch_templates.openclose_obstacle(idx, data)
-    local obstacles_to_clear = switch_templates._get_indexes(data.obstacles)
-    data.action     = function() clear_obstacles(table.unpack(obstacles_to_clear)) end
-    data.undoaction = function() init_obstacles(data.obstacles) end
 
+  ## function switch_templates.simple_obstacles_switch(idx, data)
+    ##[[
+    data.action     = function() switch_obstacles(table.unpack(data.obstacles)) end
+    data.undoaction = function() switch_obstacles(table.unpack(data.obstacles)) end
     switch_templates.basic_macro(idx, data)
-  end
+    ]]
 
-  function switch_templates.closeopen_obstacle(idx, data)
-    local obstacles_to_clear = switch_templates._get_indexes(data.obstacles)
-    data.action     = function() init_obstacles(data.obstacles) end
-    data.undoaction = function() clear_obstacles(table.unpack(obstacles_to_clear)) end
+    ## for _, v in ipairs(data.obstacles) do
+      GameState.instance.obstacles[ #[v]# ].is_security_wall = true
+    ## end
+  ## end
 
+  ## function switch_templates.simple_obstacle_move(idx, data)
+    ##[[
+    data.action     = function() move_obstacle(data.obstacle,  data.move_x,  data.move_y) end
+    data.undoaction = function() move_obstacle(data.obstacle, -data.move_x, -data.move_y) end
     switch_templates.basic_macro(idx, data)
-  end
-  ]]
+    ]]
+
+      GameState.instance.obstacles[ #[data.obstacle]# ].is_security_wall = true
+  ## end
 
   switch level do
-  -- === LEVEL 01 === --
+  -- === LEVEL 1 === --
   case 1 then
     -- player pos
-    self.player.position = units.coords(2, 3)
+    self.player.position = units.coords(3, 14)
 
     -- door pos
-    self.door.position = units.coords(12, 3)
+    self.door.position = units.coords(4, 1)
+
+    -- obstacles
+    self.obstacles = {
+      -- left room
+      init_obstacle(0, 0 , 9, 1),
+      init_obstacle(0, 1 , 1, 15),
+      init_obstacle(0,16 , 9, 1),
+      init_obstacle(8, 1 , 1, 15),
+    }
+
+    -- show dialog
+    dialogue.show()
+
+  -- === LEVEL 2 === --
+  case 2 then
+    -- player pos
+    self.player.position = units.coords(2, 5)
+
+    -- door pos
+    self.door.position = units.coords(12, 5)
 
     -- obstacles
     self.obstacles = {
@@ -230,28 +337,28 @@ function GameState:open_level(level: integer)
     }
 
     -- switches
-    ##[[
-    switch_templates.openclose_obstacle(0, { pos = {5, 3}, obstacles = {
-      [4] = {7,1 , 1,5},
-    }})
-    ]]
+    ## switch_templates.simple_obstacles_switch(0, { pos = { 5, 2 }, obstacles = { 4 } })
 
+    -- show dialog
     dialogue.show()
 
-  -- === LEVEL 02 === --
-  case 2 then
+  -- === LEVEL 3 === --
+  case 3 then
     -- player pos
-    self.player.position = units.coords(2, 6)
+    self.player.position = units.coords(4, 1)
 
     -- door pos
-    self.door.position = units.coords(26, 4)
+    self.door.position = units.coords(27, 4)
 
     -- obstacles
     self.obstacles = {
       -- left room
       init_obstacle(0,0 , 9,1),
       init_obstacle(0,8 , 9,1),
-      init_obstacle(0,0 , 1,8), -- [02]: switch #1
+      init_obstacle(0,1 , 1,7), -- [02]: switch #1
+
+      -- corridor wall
+      init_obstacle(18,2 , 1,5), -- [03]: switch #1
 
       -- corridor
       init_obstacle(8,1 , 12,1),
@@ -269,37 +376,119 @@ function GameState:open_level(level: integer)
       init_obstacle( 0,-2 , 1, 2),
       init_obstacle( 0, 9 , 1, 2),
 
-      -- init_obstacle(20,1 , 1,7), -- [13]: switch #2
+      init_obstacle(20,1 , 1,7, false), -- [14]: switch #2
     }
 
     -- switches
     ##[[
-    switch_templates.openclose_obstacle(0, { pos = {4, 2}, obstacles = {
-      [2] = {0,0 , 1,8},
-    }})
-    switch_templates.closeopen_obstacle(1, { pos = {22, 4}, obstacles = {
-      [13] = {20,1 , 1,7},
-    }})
+    switch_templates.simple_obstacles_switch(0, { pos = { 6, 6}, obstacles = {2, 3} })
+    switch_templates.simple_obstacles_switch(1, { pos = {22, 4}, obstacles = {14} })
     ]]
 
     -- enemies
     self.enemies[0] = { active = true, position = units.coords(-4, 4) }
 
-  -- === LEVEL 03 === --
-  case 3 then
+    -- show dialog
+    dialogue.show()
+
+  -- === LEVEL 4 === --
+  case 4 then
     -- player pos
-    self.player.position = units.coords(3, 2)
+    self.player.position = units.coords(1, 4)
 
     -- door pos
-    self.door.position = units.coords(23, 10)
+    self.door.position = units.coords(13, 4)
 
     -- obstacles
     self.obstacles = {
-      init_obstacle( 0, 1 ,  1, 12), -- left wall
-      init_obstacle( 0, 0 , 26,  1), -- up wall
+      -- left room
+      init_obstacle( 0, 0 , 15, 1),
+      init_obstacle( 0, 8 , 15, 1),
+      init_obstacle( 0, 1 ,  1, 7),
+      init_obstacle(14, 1 ,  1, 7),
+    }
+
+    -- show dialog
+    dialogue.show()
+
+  -- === LEVEL 5 === --
+  case 5 then
+  -- player pos
+    self.player.position = units.coords(1, 2)
+
+    -- door pos
+    self.door.position = units.coords(13, 1)
+
+    -- obstacles
+    self.obstacles = {
+      -- room
+      init_obstacle( 0, 0 , 16, 1),
+      init_obstacle( 0, 1 ,  1,12),
+      init_obstacle(15, 1 ,  1,16),
+      init_obstacle( 6,17 , 10, 1),
+      init_obstacle( 5,14 ,  1, 4),
+      init_obstacle( 0,13 ,  6, 1),
+
+      -- enemy room walls
+      init_obstacle(  4, 1 , 1, 5),
+      init_obstacle(  9, 1 , 1, 4),
+      init_obstacle( 11,10 , 1, 5),
+    }
+    -- enemies
+    self.enemies[0] = { active = true, position = units.coords(6, 2) }
+
+  -- === LEVEL 6 === --
+  case 6 then
+    -- player pos
+    self.player.position = units.coords(2, 1)
+
+    -- door pos
+    self.door.position = units.coords(27, 1)
+
+    -- obstacles
+    self.obstacles = {
+      -- room
+      init_obstacle( 0, 0 , 30,  1),
+      init_obstacle( 0,10 , 30,  1),
+      init_obstacle( 0, 1 ,  1,  9),
+      init_obstacle(29, 1 ,  1,  9),
+
+      -- walls
+      init_obstacle( 5,1 , 1, 5),
+      init_obstacle(25,1 , 1, 5),
+
+      -- movable wall
+      init_obstacle( 5,6 , 6, 1), -- [06]: switch #0,1,2,3
+    }
+
+    -- switches
+    ##[[
+    for i = 0, 4 do
+      switch_templates.simple_obstacle_move(i, { pos = { 8+i*3, 7}, obstacle = 6, move_x = 3, move_y = 0 })
+    end
+    ]]
+
+    -- enemies
+    for i = 0, 4 do
+      self.enemies[i] = { active = true, position = units.coords(7 + i*4, 2) }
+    end
+
+  -- === LEVEL 7 === --
+  case 7 then
+    -- player pos
+    self.player.position = units.coords(-3, 6)
+
+    -- door pos
+    self.door.position = units.coords(23, 12)
+
+    -- obstacles
+    self.obstacles = {
+      -- after player room (see below)
+      init_obstacle( 0, 4 ,  1,  9), -- left wall
+      init_obstacle(-6, 0 , 32,  1), -- up wall
       init_obstacle( 0,13 , 26,  1), -- down wall
       init_obstacle(25, 1 ,  1, 12), -- right wall room
-      init_obstacle( 6, 1 ,  1, 10), -- 1st v(ertical) wall
+      init_obstacle( 6, 1 ,  1,  7), -- 1st v(ertical) wall [04]: switch #0
 
       -- 2nd v wall
       init_obstacle(11, 3 ,  1, 5), -- [05]: switch #1
@@ -315,51 +504,62 @@ function GameState:open_level(level: integer)
       init_obstacle(21, 8 ,  1, 5), -- [13]: switch #2
       -- last h wall
       init_obstacle(22, 7 ,  4, 1), -- [14]: switch #3
+
+      -- player room
+      init_obstacle( -6,7 , 6,1),
+      init_obstacle( -6,1 , 1,6),
     }
 
     -- switches
+    ## for i = 4, 14 do
+      GameState.instance.obstacles[#[i]#].is_security_wall = true
+    ## end
     ##[[
-    switch_templates.openclose_obstacle(0, { pos = {8.5, 10}, obstacles = {
-      [6] = { 7,7 , 4,1},
-      [7] = {11,8 , 1,5},
-    }})
-    switch_templates.basic_macro(1, { pos = { 13.5, 3},
+    switch_templates.basic_macro(0, { pos = { 8.5, 10},
       action = function()
-        clear_obstacles(9, 10);
-        init_obstacles({ [5] = {11,1 , 1,12} })
+        switch_obstacles(6, 7)
+        extend_obstacle(4, 0, 5)
       end,
       undoaction = function()
-        init_obstacles({
-          [9] = {12,7 , 4,1},
-          [10] = {16,1 , 1,5},
-          [5] = {11,3 , 1,5}
-        })
+        switch_obstacles(6, 7)
+        extend_obstacle(4, 0, -5)
+      end
+    })
+    switch_templates.basic_macro(1, { pos = { 13.5, 3},
+      action = function()
+        switch_obstacles(9, 10)
+        extend_obstacle(5, 0, 7)
+        move_obstacle(5, 0, -2)
       end,
+      undoaction = function()
+        switch_obstacles(9, 10)
+        extend_obstacle(5, 0, -7)
+        move_obstacle(5, 0, 2)
+      end
     })
     switch_templates.basic_macro(2, { pos = { 18.5, 10},
       action = function()
-        clear_obstacles(12, 13);
-        init_obstacles({ [8] = {16,1 , 1,12} })
+        switch_obstacles(12, 13)
+        extend_obstacle(8, 0, 7)
+        move_obstacle(8, 0, -5)
       end,
       undoaction = function()
-        init_obstacles({
-          [6] = {17,7 , 4,1},
-          [7] = {21,8 , 1,5},
-          [8] = {16,6 , 1,5}
-         })
-      end,
+        switch_obstacles(12, 13)
+        extend_obstacle(8, 0, -7)
+        move_obstacle(8, 0, 5)
+      end
     })
-    switch_templates.basic_macro(3, { pos = { 23.5, 3},
+    switch_templates.basic_macro(3, { pos = { 23, 3},
       action = function()
-        clear_obstacles(14);
-        init_obstacles({ [11] = {21,1 , 1,12} })
+        switch_obstacles(14)
+        extend_obstacle(11, 0, 7)
+        move_obstacle(11, 0, -2)
       end,
       undoaction = function()
-        init_obstacles({
-          [14] = {22,7 , 4,1},
-          [11] = {21,3 , 1,5}
-         })
-      end,
+        switch_obstacles(14)
+        extend_obstacle(11, 0, -7)
+        move_obstacle(11, 0, 2)
+      end
     })
     ]]
 
@@ -368,7 +568,147 @@ function GameState:open_level(level: integer)
     self.enemies[1] = { active = true, position = units.coords(  18,  3) }
     self.enemies[2] = { active = true, position = units.coords(22.5, 10) }
 
+  -- === LEVEL 8 === --
+  case 8 then
+    local LS <comptime> = 10 -- LS stands for Line Size
+    local LSp <comptime> = LS + 1 -- LS Plus 1
+    local LSh <comptime> = LS // 2 -- LS Half
+
+  -- player pos
+    self.player.position = units.coords(2, 1)
+
+    -- door pos
+    self.door.position = units.coords(LS*2+1 + LSh+1, 1)
+
+    -- obstacles
+    local RS = LS*3+3 -- RS: Room Size
+    self.obstacles = {
+      -- room
+      init_obstacle(   0,   0, RS+1,   1),
+      init_obstacle(   0,   1,  1  ,RS-1),
+      init_obstacle(  RS,   1,  1  ,RS-1),
+      init_obstacle(   0,  RS, RS+1,   1),
+    }
+    -- insert vlines
+    local function vline(self: *GameState, i_start: usize, px: integer)
+      for i = 0, < 3 do self.obstacles[i_start+i+4] = init_obstacle(px, 1+i*LSp, 1, LS) end
+    end
+    local function hline(self: *GameState, i_start: usize, py: integer)
+      for i = 0, < 3 do self.obstacles[i_start+i+4] = init_obstacle(1+i*LSp, py, LS, 1) end
+    end
+
+    for i = 0, < 2 do
+      vline(self,   i*3, LSp + i*LSp)
+    end
+    for i = 0, < 2 do
+      hline(self, 6+i*3, LSp + i*LSp)
+    end
+
+    -- switches
+    ##[[
+    local LS, LSp, LSh = LS.value, LSp.value, LSh.value
+
+    local function vline_switches(idx_start, px_start, obs_start)
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i  , { pos = { px_start  , 1 + i*LSp+LSh }, obstacles = { obs_start+i } }) end
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { px_start+2, 1 + i*LSp+LSh }, obstacles = { obs_start+i } }) end
+    end
+    local function hline_switches(idx_start, py_start, obs_start)
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i  , { pos = { LSh + i*LSp, py_start   }, obstacles = { obs_start+i } }) end
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { LSh + i*LSp, py_start+2 }, obstacles = { obs_start+i } }) end
+    end
+
+    vline_switches(0,   LS*1, 4)
+    vline_switches(6, 1+LS*2, 7)
+    hline_switches(12, LS    , 10)
+    hline_switches(18, LS*2+1, 13)
+    ]]
+
+    self.switches[0] = {}
+    self.switches[3] = {}
+    self.switches[7] = {}
+    self.switches[10] = {}
+
+    -- enemies
+    self.enemies[0] = { active = true, position = units.coords(1+LS+LSh  ,1+LS+LSh) }
+    self.enemies[1] = { active = true, position = units.coords(2+LS*2+LSh,     LSh) }
+
+  -- === LEVEL 9 === --
+  case 9 then
+    -- player pos
+    self.player.position = units.coords(5, 39)
+
+    -- door pos
+    self.door.position = units.coords(5, -5)
+
+    -- obstacles
+    self.obstacles = {
+      -- left room
+      init_obstacle( 0, -6 , 11, 1),
+
+      init_obstacle( 0, -5 ,  1,20),
+      init_obstacle(10, -5 ,  1,20),
+
+      -- enemies rooms
+      -- upper room
+      init_obstacle(-5,14 ,  5,1),
+      init_obstacle(11,14 ,  5,1),
+      init_obstacle(-5,15 ,  1,4),
+      init_obstacle(15,15 ,  1,4),
+      init_obstacle(-5,19 ,  5,1),
+      init_obstacle(11,19 ,  5,1),
+
+      -- separator
+      init_obstacle( 0,19 ,  1,6),
+      init_obstacle(10,19 ,  1,6),
+
+      -- bottom room
+      init_obstacle(-5,24 ,  5,1),
+      init_obstacle(11,24 ,  5,1),
+      init_obstacle(-5,25 ,  1,4),
+      init_obstacle(15,25 ,  1,4),
+      init_obstacle(-5,29 ,  5,1),
+      init_obstacle(11,29 ,  5,1),
+
+
+      init_obstacle( 0,29 ,  1,11),
+      init_obstacle(10,29 ,  1,11),
+
+      init_obstacle( 0,40 , 11, 1),
+    }
+
+    -- enemies
+    self.enemies[0] = { active = true, position = units.coords(-3,26) }
+    self.enemies[1] = { active = true, position = units.coords(12,26) }
+
+    self.enemies[2] = { active = true, position = units.coords(-3,16) }
+    self.enemies[3] = { active = true, position = units.coords(12,16) }
+
+    -- show dialog
     dialogue.show()
+
+-- === LEVEL 10 === --
+  case 10 then
+    -- player pos
+    self.player.position = units.coords(5, 9)
+
+    -- door pos
+    self.door.position = units.coords(5, 2)
+
+    -- obstacles
+    self.obstacles = {
+      -- left room
+      init_obstacle( 0, 0 , 11, 1),
+      init_obstacle( 0, 1 , 1,  9),
+      init_obstacle( 0,10 , 11, 1),
+      init_obstacle(10, 1 , 1,  9),
+    }
+
+    -- show dialog
+    dialogue.show()
+
+  -- =^-^= GAME END =^-^= --
+  case 11 then
+    self.game_end = true
   end
 
   self.current_level = level
@@ -381,12 +721,14 @@ end
 
 function GameState.lost_level()
   local self = &GameState.instance
+  dialogue.rewind(self.current_level)
   self:open_level(self.current_level)
 end
 
--- main
+-- setup
 game_functions.lost_level        = GameState.lost_level
 game_functions.open_next_level   = GameState.open_next_level
+game_functions.get_player_pos    = GameState.get_player_pos
 game_functions.get_camera_offset = GameState.get_camera_offset
 game_functions.is_intersecting_obstacle = GameState.is_intersecting_obstacle
 game_functions.is_intersecting_door     = GameState.is_intersecting_door
@@ -396,23 +738,38 @@ game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
 
 GameState.instance:open_level(1)
 
+PALETTE[0] = 0x000000
+PALETTE[1] = 0xaa0000
+PALETTE[2] = 0x00aa00
+PALETTE[3] = 0xffffff
+
 local function update()
-  if not dialogue.active then
-    GameState.instance.player:update()
-    for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
+  $DRAW_COLORS = 0x0124
+
+  if not GameState.instance.game_end then
+    if not dialogue.active then
+      GameState.instance.player:update()
+      for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:update() end
+    else
+      dialogue.update()
+    end
+
+    #[paint_bg]#(GameState.instance.current_level)
+      for i = 0, < #GameState.instance.enemies   do GameState.instance.enemies[i]:paint()   end
+      for i = 0, < #GameState.instance.switches  do GameState.instance.switches[i]:paint()  end
+
+      #[paint_mid]#(GameState.instance.current_level, true)
+        for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(true) end
+          GameState.instance.player:paint()
+        #[paint_mid]#(GameState.instance.current_level, false)
+        for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(false) end
+    #[paint_fg]#(GameState.instance.current_level)
+
+    if dialogue.active then
+      dialogue.paint()
+    end
   else
-    dialogue.update()
-  end
-
-  GameState.instance.door:paint()
-  for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint() end
-  for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint() end
-  for i = 0, < #GameState.instance.enemies do GameState.instance.enemies[i]:paint() end
-
-  GameState.instance.player:paint()
-
-  if dialogue.active then
-    dialogue.paint()
+    text('Congrats!\n\nThanks for playing\n\n^-^', 8, 64)
   end
 end
 

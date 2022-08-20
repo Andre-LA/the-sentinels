@@ -8,12 +8,12 @@ local tileset = require 'levels.tileset'
 -- TODO: improve gamepad handling
 local prevframe_b1_pressed: boolean
 
-local Character = @enum{
-  Main = 0,
-}
+-- local Portrait = @enum{
+--   MainNeutral = 0,
+-- }
 
 local Line = @record{
-  character: Character,
+  -- portrait: Portrait,
   text: string,
   closing: boolean
 }
@@ -23,42 +23,76 @@ local dialogue = @record{}
 local dialogue.active = false
 local dialogue.current = 0
 
-local dialogue.pt_texts: [32]Line = {
-  -- level 1
-  { Character.Main,
-[[Aghhh....]]
-  },
-  { Character.Main,
-[[Heh!?]]
-  },
-  { Character.Main,
-[[Que lugar e' este?]],
-    closing = true,
-  },
-  -- level 3
-  { Character.Main,
-[[Ufa, mas o que foi isso?!]],
-  closing = true
-  }
+local dialogue.pt_texts: [21]Line = {
+  -- level 1 [0]
+  { --[[Portrait.MainNeutral, ]] "Ugh..." },
+  { --[[Portrait.MainNeutral, ]] "Heh!?" },
+  { --[[Portrait.MainNeutral, ]] "Where am I?" },
+  { --[[Portrait.MainNeutral, ]] "I really don't\nremember...", closing = true },
+  -- level 2 [4]
+  { --[[Portrait.MainNeutral, ]] "Wait.. I know\nthis place.." },
+  { --[[Portrait.MainNeutral, ]] "I remember now!" },
+  { --[[Portrait.MainNeutral, ]] "I work here!\n\nThis is the robot\nlaboratory!" },
+  { --[[Portrait.MainNeutral, ]] "And this is.. a\nsecurity wall,\n\nIt can be opened\nwith this lever.", closing = true },
+  -- level 3 [8]
+  { --[[Portrait.MainNeutral, ]] "Actually, this is\na security robot\nlaboratory.." },
+  { --[[Portrait.MainNeutral, ]] "And today the\nnew sentinels would\nbe announced" },
+  { --[[Portrait.MainNeutral, ]] "But just then,\nsomething gone\nwrong..", closing = true },
+  -- level 4 [11]
+  { --[[Portrait.MainNeutral, ]] "What was that?!"},
+  { --[[Portrait.MainNeutral, ]] "Sentinels attacks\npeople now?!"},
+  { --[[Portrait.MainNeutral, ]] "Then.. this is\nwhat happened.."},
+  { --[[Portrait.MainNeutral, ]] "The sentinels AI\nis malfunctioning.."},
+  { --[[Portrait.MainNeutral, ]] "I need to go\nto central control\nroom!"},
+  { --[[Portrait.MainNeutral, ]] "There, I can\ndeactivate all\nsentinels!", closing = true},
+  -- level 9 [17]
+  { --[[Portrait.MainNeutral, ]] "Almost there!" },
+  { --[[Portrait.MainNeutral, ]] "The central control\nis on the next\nroom!", closing = true },
+  -- level 10 [19]
+  { --[[Portrait.MainNeutral, ]] "Finally! The\ncentral control\nroom!" },
+  { --[[Portrait.MainNeutral, ]] "Now, let's finish\nthis!", closing = true },
 }
 
 local dialogue.texts = &dialogue.pt_texts
 
-local function paint_character()
-  local px, py = 10, 64
-  switch dialogue.texts[dialogue.current].character do
-  case Character.Main then
-    tileset.paint_sub(0,0 , 4,4 , px,py)
-  end
-end
+-- local function paint_character()
+--   local dc = $DRAW_COLORS
+
+--   $DRAW_COLORS = 0x0041
+--   oval(2, 56, 48, 48)
+
+--   $DRAW_COLORS = dc
+
+--   local px, py = 10, 64
+--   switch dialogue.texts[dialogue.current].portrait do
+--   case Portrait.MainNeutral then
+--     tileset.paint_sub(0,0 , 4,4 , px,py)
+--   end
+-- end
 
 local function paint_text()
-  -- rect(2,108, 156, 50)
+  local dc = $DRAW_COLORS
+
+  $DRAW_COLORS = 0x0041
+  rect(2,108, 156, 50)
+
+  $DRAW_COLORS = dc
   text(dialogue.texts[dialogue.current].text, 4, 110)
 end
 
+function dialogue.rewind(level: integer)
+  switch level do
+  case  1 then dialogue.current =  0
+  case  2 then dialogue.current =  4
+  case  3 then dialogue.current =  8
+  case  4 then dialogue.current = 11
+  case  9 then dialogue.current = 17
+  case 10 then dialogue.current = 19
+  end
+end
+
 function dialogue.paint()
-  paint_character()
+  -- paint_character()
   paint_text()
 end
 

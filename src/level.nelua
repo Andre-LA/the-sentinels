@@ -1,0 +1,106 @@
+-- nelua
+local span = require 'span'
+
+-- core
+local Vec2 = require 'math.vec2'
+local units = require 'units'
+local game_functions = require 'game_functions'
+
+-- tileset
+local tileset = require 'levels.tileset'
+
+-- level
+local function paint_level(data: span(byte), width: integer, offset: Vec2, on_top: facultative(boolean))
+  ## local function paint_tile()
+    local tile_x = math.ifloor( (tile  % 16))
+    local tile_y = math.ifloor( (tile // 16))
+
+    tileset.paint_tile(tile_x, tile_y, px, py)
+  ## end
+
+  for i = 0, < #data do
+    local tile = data[i]
+
+    if tile > 0 then
+      local tile: int16 = tile
+      tile = tile-1
+      local px = math.ifloor( (i  % width) * units.UNIT - offset.x )
+      local py = math.ifloor( (i // width) * units.UNIT - offset.y )
+
+      ## if on_top.type.is_niltype then
+        ## paint_tile()
+      ## else
+        local player_pos = game_functions.get_player_pos()
+        local bp = py + units.UNIT -- bp: base position
+        if on_top then
+          if player_pos.y >= bp then
+            ## paint_tile()
+          end
+        else
+          if player_pos.y <= bp then
+            ## paint_tile()
+          end
+        end
+      ## end
+    end
+  end
+end
+
+## local make_level = generalize(function(level_name, ox, oy)
+  ##[[
+  local lualevel = require ('levels.lua.' .. level_name)
+
+  local layers = lualevel.layers
+  local function find_layer(name)
+    for _, layer in ipairs(layers) do
+      if layer.name == name then
+        return layer.data
+      end
+    end
+  end
+
+  local bg_data = find_layer'bg'
+  local fg_data = find_layer'fg'
+  local mid_data = find_layer'mid'
+
+  local DATA_LEN = lualevel.width * lualevel.height
+  ]]
+
+  local DATA_LEN <comptime> = #[DATA_LEN]#
+
+  local levelT = @record{
+    width: byte,
+    fg_data : [DATA_LEN]byte,
+    mid_data: [DATA_LEN]byte,
+    bg_data : [DATA_LEN]byte,
+  }
+  ## levelT.value.is_level = true
+
+  function levelT:init()
+    self.width = #[lualevel.width]#
+    self.fg_data = #[aster.value(fg_data)]#
+    self.mid_data = #[aster.value(mid_data)]#
+    self.bg_data = #[aster.value(bg_data)]#
+  end
+
+  function levelT:fg_paint()
+    local offset: Vec2 = { #[ox]# * units.UNIT, #[oy]# * units.UNIT }
+    paint_level(self.fg_data, self.width, game_functions.get_camera_offset() - offset)
+  end
+
+  function levelT:mid_paint(on_top: boolean)
+    local offset: Vec2 = { #[ox]# * units.UNIT, #[oy]# * units.UNIT }
+    paint_level(self.mid_data, self.width, game_functions.get_camera_offset() - offset, on_top)
+  end
+
+  function levelT:bg_paint()
+    local offset: Vec2 = { #[ox]# * units.UNIT, #[oy]# * units.UNIT }
+    paint_level(self.bg_data, self.width, game_functions.get_camera_offset() - offset)
+  end
+
+  ## return levelT
+## end)
+
+local Level: type = #[make_level]#
+return Level
+

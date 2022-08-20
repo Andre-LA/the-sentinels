@@ -11,7 +11,12 @@ local {{name}}.height <comptime> = {{height}}
 local {{name}}.flags <comptime> = {{flags}} -- {{flagsHumanReadable}}
 local {{name}}.data: [{{length}}]uint8 <comptime> = { {{bytes}} }
 
-function {{name}}.paint_sub(src_x: integer, src_y: integer, src_w: integer, src_h: integer, dest_x: integer, dest_y: integer)
+function {{name}}.paint_sub(src_x: integer, src_y: integer, src_w: integer, src_h: integer, dest_x: integer, dest_y: integer, include_flags: facultative(uint32))
+  local flags = {{name}}.flags
+  ## if not include_flags.type.is_niltype then
+    flags = flags | include_flags
+  ## end
+
   blitSub(
     {{name}}.data,
     dest_x,
@@ -21,12 +26,12 @@ function {{name}}.paint_sub(src_x: integer, src_y: integer, src_w: integer, src_
     src_x * units.UNIT,
     src_y * units.UNIT,
     {{name}}.width,
-    {{name}}.flags
+    flags
   )
 end
 
 function {{name}}.paint_tile(src_x: integer, src_y: integer, dest_x: integer, dest_y: integer)
-  {{name}}.paint_sub(src_x,src_y , 1,1 , dest_x,dest_y)
+  {{name}}.paint_sub(src_x, src_y, 1, 1, dest_x, dest_y)
 end
 
 return {{name}}

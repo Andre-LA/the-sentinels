@@ -13,8 +13,4 @@ function Door:hitbox(): Rect
   return Rect { pos = self.position, size = {units.UNIT, units.UNIT} }
 end
 
-function Door:paint()
-  self:hitbox():paint(game_functions.get_camera_offset())
-end
-
 return Door

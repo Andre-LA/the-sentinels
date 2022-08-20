@@ -12,41 +12,174 @@ local tileset = require 'levels.tileset'
 
 -- obstacle
 local Obstacle = @record{
+  _active: boolean,
+  is_security_wall: boolean,
   rect: Rect,
 }
 
-function Obstacle:hitbox(): Rect
-  return self.rect
+function Obstacle:activation_sfx()
+  local freq1: uint32 = 270 | (210 << 16)
+  local freq2: uint32 = 290 | (230 << 16)
+  if self._active then
+    freq1 = 210 | (270 << 16)
+    freq2 = 230 | (290 << 16)
+  end
+
+  local dur: uint32 <comptime> = 11 | (6 << 8) | (9 << 16)
+  local vol: uint32 <comptime> = 10 | (8 << 8)
+  local flags1: uint32 <comptime> = TONE_PULSE1
+  local flags2: uint32 <comptime> = TONE_PULSE2
+
+  tone(freq2, dur, vol, flags2)
+  tone(freq1, dur, vol, flags1)
 end
 
-function Obstacle:paint()
-  local offset = game_functions.get_camera_offset()
-  local px, py = math.ifloor(self.rect.pos.x - offset.x), math.ifloor(self.rect.pos.y - offset.y)
-  local _1UNIT <comptime> = 1.0 * units.UNIT
-
-  if self.rect.size.x == _1UNIT or self.rect.size.y == _1UNIT then
-    if self.rect.size.x > self.rect.size.y then
-      local sx = math.ifloor(self.rect.size.x / units.UNIT)
-      tileset.paint_tile(0, 3, px, py)
-      for i = 0, < sx do
-        tileset.paint_tile(1, 3, px + i*units.UNIT, py)
-      end
-      tileset.paint_tile(2, 3, px + (sx-1)*units.UNIT, py)
-
-    elseif self.rect.size.x < self.rect.size.y then
-      local sy = math.ifloor(self.rect.size.y / units.UNIT)
-      tileset.paint_tile(3, 0, px, py)
-      for i = 0, < sy do
-        tileset.paint_tile(3, 1, px, py + i*units.UNIT)
-      end
-      tileset.paint_tile(3, 2, px, py + (sy-1)*units.UNIT)
-
-    else
-      tileset.paint_tile(3, 3, px, py)
+function Obstacle:set_active(v: boolean, emit_sfx: facultative(boolean))
+  self._active = v
+  ## if not emit_sfx.type.is_niltype then
+    if likely(emit_sfx) then
+      self:activation_sfx()
     end
+  ## end
+end
+
+function Obstacle:toggle(emit_sfx: facultative(boolean))
+  self:set_active(not self._active, emit_sfx)
+end
+
+function Obstacle:move(delta: Vec2)
+  self.rect:move(delta)
+  self:activation_sfx()
+end
+
+function Obstacle:extend(delta: Vec2)
+  self.rect:extend(delta)
+  self:activation_sfx()
+end
+
+function Obstacle:hitbox(): Rect
+  if self._active then
+    return self.rect
   else
-    self:hitbox():paint(offset)
+    return Rect{}
   end
 end
 
+function Obstacle:paint(on_top: boolean)
+  if not self._active then
+    return
+  end
+
+  local u2 <comptime> = 2 * units.UNIT
+  local offset = game_functions.get_camera_offset()
+  local px, py = math.ifloor(self.rect.pos.x - offset.x), math.ifloor(self.rect.pos.y - offset.y)
+
+  local player_pos = game_functions.get_player_pos()
+
+  ## local function paint_security_wall()
+
+    if self.rect.size.x > self.rect.size.y then
+      local sx = math.ifloor(self.rect.size.x / units.UNIT)
+      local sxm1_u = (sx-1)*units.UNIT
+
+      ## local function paint_horizontal()
+        tileset.paint_tile(8, 0, px, py - u2)
+        tileset.paint_tile(8, 1, px, py - units.UNIT)
+        tileset.paint_tile(8, 2, px, py)
+        for i = 1, < (sx-1) do
+          tileset.paint_tile(9, 0, px+i*units.UNIT, py - u2)
+          tileset.paint_tile(9, 1, px+i*units.UNIT, py - units.UNIT)
+          tileset.paint_tile(9, 2, px+i*units.UNIT, py)
+        end
+        tileset.paint_tile(10, 0, px+sxm1_u, py - u2)
+        tileset.paint_tile(10, 1, px+sxm1_u, py - units.UNIT)
+        tileset.paint_tile(10, 2, px+sxm1_u, py)
+      ## end
+
+      local bp = py + units.UNIT -- bp: base position
+
+      if on_top then
+        if player_pos.y >= bp then
+          ## paint_horizontal()
+        end
+      else
+        if player_pos.y <= bp then
+          ## paint_horizontal()
+        end
+      end
+    else
+      local sy = math.ifloor(self.rect.size.y / units.UNIT)
+      local sym1_u = (sy-1) * units.UNIT
+
+      ## local function paint_vertical()
+        tileset.paint_tile(11, 0, px, py - u2)
+        for i = 1, < sy - 1 do
+          tileset.paint_tile(11, 1, px, py + i*units.UNIT - u2)
+        end
+        tileset.paint_tile(11, 2, px, py + sym1_u - u2)
+        tileset.paint_tile(0, 2, px, py + sym1_u - units.UNIT)
+        tileset.paint_tile(0, 3, px, py + sym1_u)
+      ## end
+
+      local bp = py + sy*units.UNIT -- bp: base position
+
+      if on_top then
+        if player_pos.y >= bp then
+          ## paint_vertical()
+        end
+      else
+        if player_pos.y <= bp then
+          ## paint_vertical()
+        end
+      end
+    end
+  ## end
+
+  ## local function paint_collider()
+    local dc = $DRAW_COLORS
+    defer $DRAW_COLORS = dc end
+    $DRAW_COLORS = 0x0020
+
+    if self.rect.size.x > self.rect.size.y then
+      local sx = math.ifloor(self.rect.size.x / units.UNIT)
+      rect(px, py, units.UNIT, units.UNIT)
+      for i = 0, < sx do
+        rect(px + i*units.UNIT, py, units.UNIT, units.UNIT)
+      end
+      rect(px + (sx-1)*units.UNIT, py, units.UNIT, units.UNIT)
+
+    elseif self.rect.size.x < self.rect.size.y then
+      local sy = math.ifloor(self.rect.size.y / units.UNIT)
+      rect(px, py, units.UNIT, units.UNIT)
+      for i = 0, < sy do
+        rect(px, py + i*units.UNIT, units.UNIT, units.UNIT)
+      end
+      rect(px, py + (sy-1)*units.UNIT, units.UNIT, units.UNIT)
+
+    else
+      rect(px, py, units.UNIT, units.UNIT)
+    end
+  ## end
+
+  if self.is_security_wall then
+    ## paint_security_wall()
+  end
+
+  ## local _DEBUG_COLLIDERS = false
+  ## if _DEBUG_COLLIDERS then
+    ## paint_collider()
+  ## end
+end
+
 return Obstacle
+
+
+
+
+
+
+
+
+
+
+

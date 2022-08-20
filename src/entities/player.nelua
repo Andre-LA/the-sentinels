@@ -1,3 +1,5 @@
+-- nelua
+local math = require 'math'
 -- core
 local Vec2 = require 'math.vec2'
 local Rect = require 'math.rect'
@@ -7,14 +9,43 @@ local game_functions = require 'game_functions'
 -- entities
 local Switch = require 'entities.switch'
 
+-- tileset
+local tileset = require 'levels.tileset'
+
 -- player
 local Player = @record{
   position: Vec2,
+  frame_cycle: byte,
   _prevframe_b1_pressed: boolean
 }
 
+local function emit_walk_sfx()
+  local freq: uint32 <comptime> = 160 | (180 << 16)
+  local dur: uint32 <comptime> = 3
+  local vol: uint32 <comptime> = 22 | (34 << 8)
+  local flags: uint32 <comptime> = TONE_TRIANGLE | TONE_MODE1
+
+  tone(freq, dur, vol, flags)
+end
+
+function Player:update_sfx()
+  self.frame_cycle = (self.frame_cycle + 1) % 12
+
+  if self.frame_cycle == 0 then
+    emit_walk_sfx()
+  end
+end
+
 function Player:hitbox(): Rect
   return Rect { pos = self.position, size = {units.UNIT, units.UNIT} }
+end
+
+function Player:get_center(): Vec2
+  return self.position + Vec2{ (units.UNIT//2) , (units.UNIT//2) }
+end
+
+function Player:get_paint_bottom(): Vec2
+  return self.position - game_functions.get_camera_offset() + Vec2{ (units.UNIT//2) , units.UNIT }
 end
 
 function Player:update()
@@ -48,6 +79,7 @@ function Player:update()
   if dir:len_sqr() > 0 then
     dir = dir:normalized()
     self.position = self.position + dir * SPEED
+    self:update_sfx()
   end
 
   if is_b1_just_pressed then
@@ -66,6 +98,9 @@ end
 
 function Player:paint()
   self:hitbox():paint(game_functions.get_camera_offset())
+
+  local pos = self.position - game_functions.get_camera_offset() - Vec2{5, 14}
+  tileset.paint_sub(0, 6, 2, 3, math.ifloor(pos.x), math.ifloor(pos.y))
 end
 
 return Player

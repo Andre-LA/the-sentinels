@@ -14,6 +14,14 @@ function Rect:get_center(): Vec2
   return self.pos + self.size * 0.5
 end
 
+function Rect:move(delta: Vec2)
+  self.pos = self.pos + delta
+end
+
+function Rect:extend(delta: Vec2)
+  self.size = self.size + delta
+end
+
 function Rect:get_right_side(): (Vec2, Vec2)
   local a: Vec2 = { self.pos.x + self.size.x, self.pos.y }
   local b: Vec2 = { self.pos.x + self.size.x, self.pos.y + self.size.y }

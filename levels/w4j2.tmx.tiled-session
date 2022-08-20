@@ -1,0 +1,149 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "tmx/level_10.tmx",
+    "expandedProjectPaths": [
+        "tmx",
+        "."
+    ],
+    "fileStates": {
+        "level_01.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 51.83333333333332,
+                "y": 76.16666666666666
+            }
+        },
+        "tileset.tsx": {
+            "scaleInDock": 4,
+            "scaleInEditor": 4
+        },
+        "tmx/level_01.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 35.5,
+                "y": 34.375
+            }
+        },
+        "tmx/level_02.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 74.5,
+                "y": 43.625
+            }
+        },
+        "tmx/level_03.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 272.3636363636364,
+                "y": 74.0909090909091
+            }
+        },
+        "tmx/level_04.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 65.33333333333333,
+                "y": 63.83333333333333
+            }
+        },
+        "tmx/level_05.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 73.33333333333334,
+                "y": 88.16666666666666
+            }
+        },
+        "tmx/level_06.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 193.5,
+                "y": 77.25
+            }
+        },
+        "tmx/level_07.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 143.5,
+                "y": 56.75
+            }
+        },
+        "tmx/level_08.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 127.33333333333331,
+                "y": 146.33333333333331
+            }
+        },
+        "tmx/level_09.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 71,
+                "y": 30.125
+            }
+        },
+        "tmx/level_10.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 48.33333333333333,
+                "y": 56.166666666666664
+            }
+        },
+        "tmx/tileset.tsx": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "/home/dreunix/git/w4jam2-game/levels/lua",
+    "last.externalTilesetPath": "/home/dreunix/git/w4jam2-game/levels",
+    "last.imagePath": "/home/dreunix/git/w4jam2-game/levels",
+    "map.height": 30,
+    "map.lastUsedExportFilter": "Todos os Arquivos (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 8,
+    "map.tileWidth": 8,
+    "openFiles": [
+        "tmx/level_01.tmx",
+        "tmx/level_02.tmx",
+        "tmx/level_03.tmx",
+        "tmx/level_04.tmx",
+        "tmx/level_05.tmx",
+        "tmx/level_06.tmx",
+        "tmx/level_07.tmx",
+        "tmx/level_08.tmx",
+        "tmx/level_09.tmx",
+        "tmx/level_10.tmx",
+        "tileset.tsx"
+    ],
+    "project": "w4j2.tmx.tiled-project",
+    "recentFiles": [
+        "tmx/level_01.tmx",
+        "tmx/level_02.tmx",
+        "tmx/level_03.tmx",
+        "tmx/level_04.tmx",
+        "tmx/level_05.tmx",
+        "tmx/level_06.tmx",
+        "tmx/level_07.tmx",
+        "tmx/level_08.tmx",
+        "tmx/level_09.tmx",
+        "tileset.tsx",
+        "tmx/level_10.tmx",
+        "level_01.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 8,
+        "width": 8
+    }
+}

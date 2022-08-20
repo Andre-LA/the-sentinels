@@ -4,6 +4,9 @@ local Rect = require 'math.rect'
 local units = require 'units'
 local game_functions = require 'game_functions'
 
+-- tileset
+local tileset = require 'levels.tileset'
+
 -- switch
 local Switch = @record{
   active: boolean,
@@ -32,7 +35,14 @@ end
 
 function Switch:paint()
   if not self.active then return end
-  self:hitbox():paint(game_functions.get_camera_offset())
+
+  if self.activated then
+    local pos = self.position - game_functions.get_camera_offset() - Vec2{7, 16}
+    tileset.paint_sub(12, 0, 2, 4, math.ifloor(pos.x), math.ifloor(pos.y), BLIT_FLIP_X)
+  else
+    local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
+    tileset.paint_sub(12, 0, 2, 4, math.ifloor(pos.x), math.ifloor(pos.y))
+  end
 end
 
 return Switch
