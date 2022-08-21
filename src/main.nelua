@@ -677,11 +677,11 @@ function GameState:open_level(level: integer)
     }
 
     -- enemies
-    self.enemies[0] = { active = true, position = units.coords(-3,26) }
-    self.enemies[1] = { active = true, position = units.coords(12,26) }
+    self.enemies[0] = { active = true, position = units.coords(-3,27) }
+    self.enemies[1] = { active = true, position = units.coords(12,27) }
 
-    self.enemies[2] = { active = true, position = units.coords(-3,16) }
-    self.enemies[3] = { active = true, position = units.coords(12,16) }
+    self.enemies[2] = { active = true, position = units.coords(-3,17) }
+    self.enemies[3] = { active = true, position = units.coords(12,17) }
 
     -- show dialog
     dialogue.show()
@@ -692,7 +692,7 @@ function GameState:open_level(level: integer)
     self.player.position = units.coords(5, 9)
 
     -- door pos
-    self.door.position = units.coords(5, 2)
+    self.door.position = units.coords(5, 0)
 
     -- obstacles
     self.obstacles = {
@@ -736,7 +736,7 @@ game_functions.is_intersecting_switch   = GameState.is_intersecting_switch
 game_functions.is_intersecting_player   = GameState.is_intersecting_player
 game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
 
-GameState.instance:open_level(8)
+GameState.instance:open_level(10)
 
 PALETTE[0] = 0x000000
 PALETTE[1] = 0xaa0000

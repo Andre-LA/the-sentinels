@@ -24,7 +24,8 @@ local Player = @record{
   anim_frame_cycle: byte,
   flip_x: boolean,
   state: State,
-  _prevframe_b1_pressed: boolean
+  _prevframe_b1_pressed: boolean,
+  tone_block: boolean,
 }
 
 local function emit_walk_sfx()
@@ -37,12 +38,22 @@ local function emit_walk_sfx()
 end
 
 function Player:update_sfx()
+  if self.anim_frame_cycle == 1 or self.anim_frame_cycle == 3 then
+    if not self.tone_block then
+      emit_walk_sfx()
+      self.tone_block = true
+    end
+  else
+    self.tone_block = false
+  end
+end
+
+function Player:update_anim()
   self.frame_cycle = (self.frame_cycle + 1) % 12
 
   if self.frame_cycle == 0 then
-    emit_walk_sfx()
     self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 4
-  elseif self.frame_cycle == 6 then
+  elseif self.state == State.Running and self.frame_cycle == 6 then
     self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 4
   end
 end
@@ -60,6 +71,8 @@ function Player:get_paint_bottom(): Vec2
 end
 
 function Player:update()
+  self:update_anim()
+
   local is_right_pressed = $GAMEPAD1 & BUTTON_RIGHT ~= 0
   local is_left_pressed  = $GAMEPAD1 & BUTTON_LEFT ~= 0
   local is_up_pressed    = $GAMEPAD1 & BUTTON_UP ~= 0
@@ -71,8 +84,7 @@ function Player:update()
 
   local SPEED <comptime> = 8 * units.UNIT * units.DT
 
-  local is_colliding, collision_dir   = game_functions.is_intersecting_obstacle(self:hitbox())
-  local is_touching_switch, sw_dir, sw_ptr = game_functions.is_intersecting_switch(self:hitbox())
+  local is_colliding, collision_dir = game_functions.is_intersecting_obstacle(self:hitbox())
 
   if is_colliding then
     if is_right_pressed and collision_dir.x < 0.0 then is_right_pressed = false end
@@ -80,13 +92,6 @@ function Player:update()
     if is_up_pressed    and collision_dir.y > 0.0 then is_up_pressed    = false end
     if is_down_pressed  and collision_dir.y < 0.0 then is_down_pressed  = false end
   end
-
-  -- if is_touching_switch then
-  --   if is_right_pressed and sw_dir.x < 0.0 then is_right_pressed = false end
-  --   if is_left_pressed  and sw_dir.x > 0.0 then is_left_pressed  = false end
-  --   if is_up_pressed    and sw_dir.y > 0.0 then is_up_pressed    = false end
-  --   if is_down_pressed  and sw_dir.y < 0.0 then is_down_pressed  = false end
-  -- end
 
   local any_dir_pressed = is_right_pressed or is_left_pressed or is_down_pressed  or is_up_pressed
 
@@ -108,6 +113,7 @@ function Player:update()
   end
 
   if is_b1_just_pressed then
+    local is_touching_switch, sw_dir, sw_ptr = game_functions.is_intersecting_switch(self:hitbox())
     if is_touching_switch then
       local sw_ptr: *Switch = (@pointer(Switch))(sw_ptr)
       sw_ptr:actionate()
