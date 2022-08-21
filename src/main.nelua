@@ -91,9 +91,9 @@ local GameState = @record{
   current_level: integer,
   player: Player,
   door: Door,
-  switches: [24]Switch, -- TODO: use the least necessary entities possible
-  enemies: [16]Enemy,
-  obstacles: [64]Obstacle,
+  switches: [24]Switch,
+  enemies: [4]Enemy,
+  obstacles: [20]Obstacle,
 }
 local GameState.instance: GameState
 
