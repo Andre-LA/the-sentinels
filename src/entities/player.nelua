@@ -12,11 +12,18 @@ local Switch = require 'entities.switch'
 -- tileset
 local tileset = require 'levels.tileset'
 
+local State = @enum(byte){
+  Idle = 0,
+  Running = 4,
+}
+
 -- player
 local Player = @record{
   position: Vec2,
   frame_cycle: byte,
+  anim_frame_cycle: byte,
   flip_x: boolean,
+  state: State,
   _prevframe_b1_pressed: boolean
 }
 
@@ -34,6 +41,9 @@ function Player:update_sfx()
 
   if self.frame_cycle == 0 then
     emit_walk_sfx()
+    self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 4
+  elseif self.frame_cycle == 6 then
+    self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 4
   end
 end
 
@@ -81,6 +91,8 @@ function Player:update()
   local any_dir_pressed = is_right_pressed or is_left_pressed or is_down_pressed  or is_up_pressed
 
   if any_dir_pressed then
+    self.state = State.Running
+
     local dir: Vec2;
 
     if is_right_pressed then dir.x =  1; self.flip_x = false end
@@ -91,6 +103,8 @@ function Player:update()
     dir = dir:normalized()
     self.position = self.position + dir * SPEED
     self:update_sfx()
+  else
+    self.state = State.Idle
   end
 
   if is_b1_just_pressed then
@@ -112,8 +126,10 @@ function Player:paint()
     offset.x = 1
   end
 
+  local src_x: integer = (self.state + self.anim_frame_cycle) * 2
+
   local pos = self.position - game_functions.get_camera_offset() - offset
-  tileset.paint_sub(0, 6, 2, 3, math.ifloor(pos.x), math.ifloor(pos.y), self.flip_x and BLIT_FLIP_X or 0)
+  tileset.paint_sub(src_x, 6, 2, 3, math.ifloor(pos.x), math.ifloor(pos.y), self.flip_x and BLIT_FLIP_X or 0)
 end
 
 return Player

@@ -8,10 +8,14 @@ local game_functions = require 'game_functions'
 local tileset = require 'levels.tileset'
 
 -- enemy
+
 local Enemy = @record{
   active: boolean,
-  position: Vec2,
+  is_moving: boolean,
   frame_cycle: byte,
+  anim_frame_cycle: byte,
+  position: Vec2,
+  player_dir: Vec2,
 }
 
 local function emit_walk_sfx()
@@ -28,6 +32,9 @@ function Enemy:update_sfx()
 
   if self.frame_cycle == 0 then
     emit_walk_sfx()
+    self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 5
+  elseif self.frame_cycle == 7 then
+    self.anim_frame_cycle = (self.anim_frame_cycle + 1) % 5
   end
 end
 
@@ -49,10 +56,13 @@ function Enemy:update()
   local is_colliding, collision_dir = game_functions.is_intersecting_obstacle(self:hitbox())
   local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self:get_center(), ((units.UNIT*10) ^ 2))
 
-  local should_move = is_enemy_seeing_player or is_colliding
 
-  if should_move then
+  self.is_moving = is_enemy_seeing_player or is_colliding
+
+  if self.is_moving then
     if is_enemy_seeing_player then
+      self.player_dir = player_dir
+
       if is_colliding then
         if player_dir.x < 0.0 and collision_dir.x > 0.0 then player_dir.x = 0.0 end
         if player_dir.x > 0.0 and collision_dir.x < 0.0 then player_dir.x = 0.0 end
@@ -61,6 +71,8 @@ function Enemy:update()
         player_dir = player_dir:normalized()
       end
     else
+      self.player_dir = {}
+
       if is_colliding then
         if player_dir.x < 0.0 and collision_dir.x > 0.0 then player_dir.x = -player_dir.x end
         if player_dir.x > 0.0 and collision_dir.x < 0.0 then player_dir.x = -player_dir.x end
@@ -88,7 +100,24 @@ function Enemy:paint()
   end
 
   local pos = self.position - game_functions.get_camera_offset() - Vec2{12, 14}
-  tileset.paint_sub(0, 9, 5, 4, math.ifloor(pos.x), math.ifloor(pos.y))
+  local src_x = 0
+
+  if self.is_moving then
+    src_x = self.anim_frame_cycle * 5
+  end
+
+  tileset.paint_sub(src_x, 9, 5, 4, math.ifloor(pos.x), math.ifloor(pos.y))
+
+  local dc = $DRAW_COLORS
+  defer $DRAW_COLORS = dc end
+
+  if self.is_moving then
+    $DRAW_COLORS = 0x102
+    pos = pos + Vec2{16, 5} + (Vec2{2,2} * self.player_dir)
+  else
+    pos = pos + Vec2{16, 5}
+  end
+  tileset.paint_sub(14, 0, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y))
 end
 
 return Enemy

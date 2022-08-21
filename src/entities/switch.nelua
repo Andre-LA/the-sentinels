@@ -36,11 +36,15 @@ end
 function Switch:paint()
   if not self.active then return end
 
+  local dc = $DRAW_COLORS
+  defer $DRAW_COLORS = dc end
+
+  local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
   if self.activated then
-    local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
-    tileset.paint_sub(12, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2), BLIT_FLIP_X)
+    $DRAW_COLORS = 0x0103
+    tileset.paint_sub(13, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2))
   else
-    local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
+    $DRAW_COLORS = 0x0102
     tileset.paint_sub(12, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2))
   end
 end

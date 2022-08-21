@@ -756,8 +756,8 @@ local function update()
 
     #[paint_bg]#(GameState.instance.current_level)
 
-      for i = 0, < #GameState.instance.enemies  do GameState.instance.enemies[i]:paint()   end
       for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint()  end
+      for i = 0, < #GameState.instance.enemies  do GameState.instance.enemies[i]:paint()   end
 
       #[paint_mid]#(GameState.instance.current_level, true)
 
