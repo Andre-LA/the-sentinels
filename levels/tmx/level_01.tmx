@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="9" height="19" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="1">
+<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="9" height="19" tilewidth="8" tileheight="8" infinite="0" nextlayerid="5" nextobjectid="1">
  <editorsettings>
   <export target="../lua/level_01.lua" format="lua"/>
  </editorsettings>
@@ -9,7 +9,7 @@
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
-0,101,101,101,31,101,101,127,0,
+0,101,101,101,101,101,101,127,0,
 0,101,101,101,101,101,101,127,0,
 0,101,101,101,101,101,101,127,0,
 0,101,101,101,101,101,101,127,0,
@@ -30,8 +30,8 @@
  <layer id="3" name="mid" width="9" height="19">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,
-0,51,52,52,52,52,52,53,0,
-0,76,77,77,77,77,77,78,0,
+0,51,52,53,33,51,52,53,0,
+0,76,77,78,58,76,77,78,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,
