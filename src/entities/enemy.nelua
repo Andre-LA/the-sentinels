@@ -44,7 +44,7 @@ function Enemy:update()
     return
   end
 
-  local SPEED <comptime> = 7 * units.UNIT * units.DT
+  local SPEED <comptime> = 6.4 * units.UNIT * units.DT
 
   local is_colliding, collision_dir = game_functions.is_intersecting_obstacle(self:hitbox())
   local is_enemy_seeing_player, player_dir = game_functions.is_enemy_seeing_player(self:get_center(), ((units.UNIT*10) ^ 2))
@@ -86,8 +86,6 @@ function Enemy:paint()
   if not self.active then
     return
   end
-
-  self:hitbox():paint(game_functions.get_camera_offset())
 
   local pos = self.position - game_functions.get_camera_offset() - Vec2{12, 14}
   tileset.paint_sub(0, 9, 5, 4, math.ifloor(pos.x), math.ifloor(pos.y))

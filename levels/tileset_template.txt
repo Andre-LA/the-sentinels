@@ -9,7 +9,7 @@ local {{name}} = @record{}
 local {{name}}.width <comptime> = {{width}}
 local {{name}}.height <comptime> = {{height}}
 local {{name}}.flags <comptime> = {{flags}} -- {{flagsHumanReadable}}
-local {{name}}.data: [{{length}}]uint8 <comptime> = { {{bytes}} }
+local {{name}}.data: [{{length}}]uint8 <const> = { {{bytes}} }
 
 function {{name}}.paint_sub(src_x: integer, src_y: integer, src_w: integer, src_h: integer, dest_x: integer, dest_y: integer, include_flags: facultative(uint32))
   local flags = {{name}}.flags

@@ -37,11 +37,11 @@ function Switch:paint()
   if not self.active then return end
 
   if self.activated then
-    local pos = self.position - game_functions.get_camera_offset() - Vec2{7, 16}
-    tileset.paint_sub(12, 0, 2, 4, math.ifloor(pos.x), math.ifloor(pos.y), BLIT_FLIP_X)
+    local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
+    tileset.paint_sub(12, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2), BLIT_FLIP_X)
   else
     local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
-    tileset.paint_sub(12, 0, 2, 4, math.ifloor(pos.x), math.ifloor(pos.y))
+    tileset.paint_sub(12, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2))
   end
 end
 

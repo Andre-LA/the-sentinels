@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tmx/level_10.tmx",
+    "activeFile": "tileset.tsx",
     "expandedProjectPaths": [
         "tmx",
         "."
@@ -19,86 +19,86 @@
         },
         "tileset.tsx": {
             "scaleInDock": 4,
-            "scaleInEditor": 4
+            "scaleInEditor": 5.5
         },
         "tmx/level_01.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 35.5,
-                "y": 34.375
+                "x": 26.5,
+                "y": 36.625
             }
         },
         "tmx/level_02.tmx": {
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 74.5,
-                "y": 43.625
+                "x": 63.5,
+                "y": 21.875
             }
         },
         "tmx/level_03.tmx": {
-            "scale": 5.5,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 272.3636363636364,
-                "y": 74.0909090909091
+                "x": 124,
+                "y": 48.25
             }
         },
         "tmx/level_04.tmx": {
             "scale": 3,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 65.33333333333333,
-                "y": 63.83333333333333
+                "x": 63.66666666666667,
+                "y": 54.166666666666664
             }
         },
         "tmx/level_05.tmx": {
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 73.33333333333334,
-                "y": 88.16666666666666
+                "x": 60,
+                "y": 77.16666666666666
             }
         },
         "tmx/level_06.tmx": {
             "scale": 2,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 193.5,
-                "y": 77.25
+                "x": 115,
+                "y": 52.25
             }
         },
         "tmx/level_07.tmx": {
             "scale": 2,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 143.5,
-                "y": 56.75
+                "x": 134.5,
+                "y": 46.75
             }
         },
         "tmx/level_08.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 0,
+            "scale": 2,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 127.33333333333331,
-                "y": 146.33333333333331
+                "x": 127.5,
+                "y": 73.25
             }
         },
         "tmx/level_09.tmx": {
-            "scale": 4,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 71,
-                "y": 30.125
+                "x": 85,
+                "y": 328.75
             }
         },
         "tmx/level_10.tmx": {
             "scale": 3,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 48.33333333333333,
-                "y": 56.166666666666664
+                "x": 43,
+                "y": 57.499999999999986
             }
         },
         "tmx/tileset.tsx": {
@@ -137,8 +137,8 @@
         "tmx/level_07.tmx",
         "tmx/level_08.tmx",
         "tmx/level_09.tmx",
-        "tileset.tsx",
         "tmx/level_10.tmx",
+        "tileset.tsx",
         "level_01.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",

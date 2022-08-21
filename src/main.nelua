@@ -381,7 +381,7 @@ function GameState:open_level(level: integer)
 
     -- switches
     ##[[
-    switch_templates.simple_obstacles_switch(0, { pos = { 6, 6}, obstacles = {2, 3} })
+    switch_templates.simple_obstacles_switch(0, { pos = { 4, 6}, obstacles = {2, 3} })
     switch_templates.simple_obstacles_switch(1, { pos = {22, 4}, obstacles = {14} })
     ]]
 
@@ -610,17 +610,17 @@ function GameState:open_level(level: integer)
 
     local function vline_switches(idx_start, px_start, obs_start)
       for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i  , { pos = { px_start  , 1 + i*LSp+LSh }, obstacles = { obs_start+i } }) end
-      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { px_start+2, 1 + i*LSp+LSh }, obstacles = { obs_start+i } }) end
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { px_start+6, 1 + i*LSp+LSh }, obstacles = { obs_start+i } }) end
     end
     local function hline_switches(idx_start, py_start, obs_start)
       for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i  , { pos = { LSh + i*LSp, py_start   }, obstacles = { obs_start+i } }) end
-      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { LSh + i*LSp, py_start+2 }, obstacles = { obs_start+i } }) end
+      for i = 0, 2 do switch_templates.simple_obstacles_switch(idx_start+i+3, { pos = { LSh + i*LSp, py_start+6 }, obstacles = { obs_start+i } }) end
     end
 
-    vline_switches(0,   LS*1, 4)
-    vline_switches(6, 1+LS*2, 7)
-    hline_switches(12, LS    , 10)
-    hline_switches(18, LS*2+1, 13)
+    vline_switches(0,  LS*1-2, 4)
+    vline_switches(6,  LS*2-1, 7)
+    hline_switches(12, LS+2-4, 10)
+    hline_switches(18, LS*2-1, 13)
     ]]
 
     self.switches[0] = {}
@@ -736,7 +736,7 @@ game_functions.is_intersecting_switch   = GameState.is_intersecting_switch
 game_functions.is_intersecting_player   = GameState.is_intersecting_player
 game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
 
-GameState.instance:open_level(1)
+GameState.instance:open_level(8)
 
 PALETTE[0] = 0x000000
 PALETTE[1] = 0xaa0000
@@ -744,7 +744,7 @@ PALETTE[2] = 0x00aa00
 PALETTE[3] = 0xffffff
 
 local function update()
-  $DRAW_COLORS = 0x0124
+  $DRAW_COLORS = 0x0104
 
   if not GameState.instance.game_end then
     if not dialogue.active then
@@ -755,14 +755,21 @@ local function update()
     end
 
     #[paint_bg]#(GameState.instance.current_level)
-      for i = 0, < #GameState.instance.enemies   do GameState.instance.enemies[i]:paint()   end
-      for i = 0, < #GameState.instance.switches  do GameState.instance.switches[i]:paint()  end
+
+      for i = 0, < #GameState.instance.enemies  do GameState.instance.enemies[i]:paint()   end
+      for i = 0, < #GameState.instance.switches do GameState.instance.switches[i]:paint()  end
 
       #[paint_mid]#(GameState.instance.current_level, true)
+
         for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(true) end
+
           GameState.instance.player:paint()
+
         #[paint_mid]#(GameState.instance.current_level, false)
+
         for i = 0, < #GameState.instance.obstacles do GameState.instance.obstacles[i]:paint(false) end
+
+
     #[paint_fg]#(GameState.instance.current_level)
 
     if dialogue.active then

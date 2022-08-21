@@ -12,8 +12,8 @@ local tileset = require 'levels.tileset'
 -- level
 local function paint_level(data: span(byte), width: integer, offset: Vec2, on_top: facultative(boolean))
   ## local function paint_tile()
-    local tile_x = math.ifloor( (tile  % 16))
-    local tile_y = math.ifloor( (tile // 16))
+    local tile_x = math.ifloor(tile  % 25)
+    local tile_y = math.ifloor(tile // 25)
 
     tileset.paint_tile(tile_x, tile_y, px, py)
   ## end
