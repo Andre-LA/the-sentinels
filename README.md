@@ -11,7 +11,7 @@ and it's an entry for [WASM-4 Jam #2](https://itch.io/jam/wasm4-v2).
 
 ## Play it on itch.io!
 
-You can play this game for free on [itch.io](https://origamisword.itch.io/the-sentinels), it works both on desktop on mobile!
+You can play this game for free on [itch.io](https://origamisword.itch.io/the-sentinels), it works both on desktop and mobile!
 
 ## Dependencies
 
