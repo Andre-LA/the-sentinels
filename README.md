@@ -8,6 +8,8 @@ and it's an entry for [WASM-4 Jam #2](https://itch.io/jam/wasm4-v2).
 - Code and portrait pixel-art made by André L. Alvares;
 - Pixel art made by Leonardo Santos.
 
+- [Source Code Repository](https://codeberg.org/Andre-LA/w4jam2-game)
+- [Issue Tracker](https://github.com/Andre-LA/the-sentinels)
 
 ## Play it on itch.io!
 
