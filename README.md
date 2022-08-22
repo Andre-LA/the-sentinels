@@ -24,4 +24,7 @@ w4 run build/cart.wasm
 
 ## License
 
-This game is licensed under [CC-BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), see the `LICENSE` file.
+All source code files are licensed under Mozilla Public License Version 2.0.
+All assets (non source code files) are licensed under CC BY-NC-SA 4.0 license.
+
+Please, read the `LICENSE` file.
