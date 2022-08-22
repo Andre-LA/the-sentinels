@@ -1,12 +1,21 @@
-# unnamed WASM-4 Jam #2 entry game repository
+# The Sentinels
 
-A game written in [Nelua](https://nelua.io/) for the [WASM-4](https://wasm4.org) fantasy console.
+## About
 
-Entry for [WASM-4 Jam #2](https://itch.io/jam/wasm4-v2).
+This game is written in [Nelua](https://nelua.io/) programming language for the [WASM-4](https://wasm4.org) fantasy console,
+and it's an entry for [WASM-4 Jam #2](https://itch.io/jam/wasm4-v2).
+
+- Code and portrait pixel-art made by André L. Alvares;
+- Pixel art made by Leonardo Santos.
+
+
+## Play it on itch.io!
+
+You can play this game for free on [itch.io](https://origamisword.itch.io/the-sentinels), it works both on desktop on mobile!
 
 ## Dependencies
 
-Install [Nelua](https://nelua.io/installing/) language, then make [WASM-4](https://wasm4.org/docs/getting-started/setup) fantasy console and [WASI SDK](https://github.com/WebAssembly/wasi-sdk#install) available.
+[Install Nelua](https://nelua.io/installing/) language, then make [WASM-4](https://wasm4.org/docs/getting-started/setup) fantasy console and [WASI SDK](https://github.com/WebAssembly/wasi-sdk#install) available.
 
 ## Building
 
