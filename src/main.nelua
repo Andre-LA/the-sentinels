@@ -29,6 +29,9 @@ local Obstacle  = require 'entities.obstacle'
 -- gui
 local dialogue = require 'gui.dialogue'
 
+-- credits
+local credits = require 'levels.credits'
+
 -- level
 local Level = require 'level'
 
@@ -92,7 +95,7 @@ local GameState = @record{
   player: Player,
   door: Door,
   switches: [24]Switch,
-  enemies: [4]Enemy,
+  enemies: [5]Enemy,
   obstacles: [20]Obstacle,
 }
 local GameState.instance: GameState
@@ -736,7 +739,7 @@ game_functions.is_intersecting_switch   = GameState.is_intersecting_switch
 game_functions.is_intersecting_player   = GameState.is_intersecting_player
 game_functions.is_enemy_seeing_player   = GameState.is_enemy_seeing_player
 
-GameState.instance:open_level(10)
+GameState.instance:open_level(1)
 
 PALETTE[0] = 0x000000
 PALETTE[1] = 0xaa0000
@@ -744,7 +747,7 @@ PALETTE[2] = 0x00aa00
 PALETTE[3] = 0xffffff
 
 local function update()
-  $DRAW_COLORS = 0x0104
+  $DRAW_COLORS = 0x0041
 
   if not GameState.instance.game_end then
     if not dialogue.active then
@@ -776,7 +779,7 @@ local function update()
       dialogue.paint()
     end
   else
-    text('Congrats!\n\nThanks for playing\n\n^-^', 8, 64)
+    blit(credits.data, 0, 0, credits.width, credits.height)
   end
 end
 

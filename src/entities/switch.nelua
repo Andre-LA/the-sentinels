@@ -41,10 +41,10 @@ function Switch:paint()
 
   local pos = self.position - game_functions.get_camera_offset() - Vec2{0, 16}
   if self.activated then
-    $DRAW_COLORS = 0x0103
+    $DRAW_COLORS = 0x0031
     tileset.paint_sub(13, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2))
   else
-    $DRAW_COLORS = 0x0102
+    $DRAW_COLORS = 0x0021
     tileset.paint_sub(12, 2, 1, 1, math.ifloor(pos.x), math.ifloor(pos.y + units.UNIT*2))
   end
 end

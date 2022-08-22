@@ -112,7 +112,7 @@ function Enemy:paint()
   defer $DRAW_COLORS = dc end
 
   if self.is_moving then
-    $DRAW_COLORS = 0x102
+    $DRAW_COLORS = 0x0021
     pos = pos + Vec2{16, 5} + (Vec2{2,2} * self.player_dir)
   else
     pos = pos + Vec2{16, 5}
